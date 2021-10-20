@@ -1,0 +1,12 @@
+exchange: 
+    name:                       # required name of exchange
+                                
+    mode: fanout                # required type of exchange. Available values  "fanout" or "topic" or "direct" 
+    
+    options:  # !!! options for assertExchange method call
+        durable: true           # (boolean): if true, the exchange will survive broker restarts. Defaults to true.
+        autoDelete: false       # (boolean): if true, the exchange will be destroyed once the number of bindings for which it is the source drop to zero. Defaults to false.
+
+message:
+    options:  # !!! options for publish method call
+        persistent: true            # (boolean): If truthy, the message will survive broker restarts provided it’s in a queue that also survives restarts.
