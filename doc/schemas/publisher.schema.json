@@ -1,0 +1,70 @@
+{
+ "type": "object",
+ "required": [
+  "exchange",
+  "message"
+ ],
+ "properties": {
+  "exchange": {
+   "type": "object",
+   "required": [
+    "name",
+    "mode",
+    "options"
+   ],
+   "properties": {
+    "name": {
+     "type": "string"
+    },
+    "mode": {
+     "type": "string"
+    },
+    "options": {
+     "type": "object",
+     "required": [
+      "durable",
+      "autoDelete"
+     ],
+     "properties": {
+      "durable": {
+       "type": "boolean"
+      },
+      "autoDelete": {
+       "type": "boolean"
+      }
+     }
+    }
+   },
+   "errorMessage": {
+    "properties": {
+     "name": "Exchange name is required. It should be a string."
+    }
+   }
+  },
+  "message": {
+   "type": "object",
+   "required": [
+    "options"
+   ],
+   "properties": {
+    "options": {
+     "type": "object",
+     "required": [
+      "persistent"
+     ],
+     "properties": {
+      "persistent": {
+       "type": "boolean"
+      }
+     }
+    }
+   }
+  }
+ },
+ "errorMessage": {
+  "properties": {
+   "exchange": "Exchange should be an object",
+   "message": "Message should be an object"
+  }
+ }
+}
