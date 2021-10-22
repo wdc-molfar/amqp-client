@@ -18,7 +18,7 @@ Bla bla bla
 
 | Property            | Type     | Required | Nullable       | Defined by                                                                                                                                         |
 | :------------------ | :------- | :------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [amqp](#amqp)       | `object` | Optional | cannot be null | [Consumer options](consumer-properties-amqp.md "http://molfar.wdc.org.ua/schemas/consumer#/properties/amqp")                                       |
+| [amqp](#amqp)       | `object` | Required | cannot be null | [Consumer options](consumer-properties-amqp.md "http://molfar.wdc.org.ua/schemas/consumer#/properties/amqp")                                       |
 | [queue](#queue)     | `object` | Required | cannot be null | [Consumer options](consumer-properties-consumes-queue-options.md "http://molfar.wdc.org.ua/schemas/consumer/#/properties/queue#/properties/queue") |
 | [message](#message) | `object` | Required | cannot be null | [Consumer options](consumer-properties-message.md "http://molfar.wdc.org.ua/schemas/consumer#/properties/message")                                 |
 
@@ -28,7 +28,7 @@ Bla bla bla
 
 `amqp`
 
-*   is optional
+*   is required
 
 *   Type: `object` ([Details](consumer-properties-amqp.md))
 

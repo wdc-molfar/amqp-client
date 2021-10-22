@@ -70,15 +70,16 @@ let run  = async () => {
 				next()
 			})
 
-			.use( Middleware.Schema.validator(inputSchema))
-			
-			.use( Middleware.Error.Log )
-	
-			.use( Middleware.Error.BreakChain )
-
-			.use( Middleware.Filter( msg => {
-				return msg.content && msg.content.data.endsWith("5")
-			}))
+			.use( 
+				[ 
+					Middleware.Schema.validator(inputSchema),
+					Middleware.Error.Log,
+					Middleware.Error.BreakChain,
+					Middleware.Filter( msg => {
+						return msg.content && msg.content.data.endsWith("5")
+					}),
+				]	
+			)
 			
 			.use( async ( err, msg, next) => {
 				console.log("Process:", msg.content)
@@ -90,11 +91,7 @@ let run  = async () => {
 	let p = await new Publisher(publisherOptions)
 	p
 		
-		// .use( Middleware.Schema.validator(schema))
-		
-		// .use( Middleware.Error.Log )
-	
-		// .use( Middleware.Error.BreakChain )
+		.use( [ Middleware.Schema.validator(schema), Middleware.Error.Log, Middleware.Error.BreakChain ] )
 
 		.use (( err, msg, next) => {
 			console.log("Send:", msg.content)
