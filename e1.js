@@ -91,7 +91,7 @@ let run  = async () => {
 	let publisher = await new Publisher(publisherOptions)
 	publisher
 		
-		.use( [ Middleware.Schema.validator(schema), Middleware.Error.Log, Middleware.Error.BreakChain ] )
+		// .use( [ Middleware.Schema.validator(schema), Middleware.Error.Log, Middleware.Error.BreakChain ] )
 
 		.use (( err, msg, next) => {
 			console.log("Send:", msg.content)
