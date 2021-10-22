@@ -4,7 +4,7 @@ $id: "http://molfar.wdc.org.ua/schemas/consumer"
 
 type: object
 required:
- # - amqp
+  - amqp
   - queue
   - message
 properties:  
