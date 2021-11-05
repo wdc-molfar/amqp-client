@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "jest --no-cache --runInBand --forceExit --passWithNoTests",
-    "example":"node example",
+    "example": "node example",
     "docs:api": "jsdoc2md  --template docs/.config/README.hbs --files lib/**/*.js  > docs/api/README.md",
     "docs:schemas": "node ./build/docs/prepare && jsonschema2md -d ./docs/schemas/json -o ./docs/schemas -p version,test -x ./docs/schemas/json",
     "docs:build": "npm run test && npm run docs:api && npm run docs:schemas",
@@ -60,6 +60,7 @@
   "dependencies": {
     "@adobe/jsonschema2md": "^6.1.4",
     "@cloudamqp/amqp-client": "^1.1.6",
+    "@molfar/msapi-schemas": "github:wdc-molfar/msapi-schemas",
     "ajv": "^8.6.3",
     "ajv-errors": "^3.0.0",
     "amqplib": "^0.8.0",
