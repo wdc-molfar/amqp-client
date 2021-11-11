@@ -6,6 +6,7 @@
   "scripts": {
     "test": "jest --no-cache --runInBand --forceExit --passWithNoTests",
     "example": "node example",
+    "example-dev": "nodemon --exec node_modules/.bin/babel-node example.js",
     "docs:api": "jsdoc2md  --template docs/.config/README.hbs --files lib/**/*.js  > docs/api/README.md",
     "docs:schemas": "node ./build/docs/prepare && jsonschema2md -d ./docs/schemas/json -o ./docs/schemas -p version,test -x ./docs/schemas/json",
     "docs:build": "npm run test && npm run docs:api && npm run docs:schemas",
@@ -24,6 +25,10 @@
   },
   "homepage": "https://github.com/wdc-molfar/amqp-client#readme",
   "devDependencies": {
+    "@babel/cli": "^7.16.0",
+    "@babel/core": "^7.16.0",
+    "@babel/node": "^7.16.0",
+    "@babel/preset-env": "^7.16.0",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "eslint": "^8.2.0",
@@ -66,6 +71,7 @@
   },
   "dependencies": {
     "@adobe/jsonschema2md": "^6.1.4",
+    "@babel/plugin-transform-runtime": "^7.16.0",
     "@cloudamqp/amqp-client": "^1.1.6",
     "@molfar/msapi-schemas": "github:wdc-molfar/msapi-schemas",
     "ajv": "^8.6.3",
