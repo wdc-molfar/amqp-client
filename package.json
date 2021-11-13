@@ -4,7 +4,8 @@
   "description": "Molfar AMQP Client based on AMQP 0-9-1 library",
   "main": "lib/index.js",
   "scripts": {
-    "test": "jest --no-cache --runInBand --forceExit --passWithNoTests",
+    "test": "jest --no-cache --runInBand --forceExit --passWithNoTests --coverage",
+    "test-dev": "jest --watch",
     "example": "node example",
     "example-dev": "nodemon --exec node_modules/.bin/babel-node example.js",
     "my-example-dev": "nodemon --exec node_modules/.bin/babel-node my-example.js",
