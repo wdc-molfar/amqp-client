@@ -81,8 +81,10 @@
     "amqp-connection-manager": "^3.7.0",
     "amqplib": "^0.8.0",
     "amqplib-plus": "^1.0.9",
+    "express": "^4.17.1",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
+    "prom-client": "^14.0.1",
     "require-yml": "^2.0.0"
   }
 }

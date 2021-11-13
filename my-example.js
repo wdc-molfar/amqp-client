@@ -3,9 +3,10 @@
 /* eslint-disable import/no-named-as-default */
 import { Middleware, yaml2js } from './lib';
 import AmqpExplorer from './lib/infrastructure/amqp-explorer';
+import { getMetrics } from './lib/utils/metrics';
 
 const amqp = {
-  url: 'amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg',
+  url: 'amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg?heartbeat=60',
 };
 
 const exchange = {
@@ -58,6 +59,11 @@ const run = async () => {
   const consumer = await amqpExplorer.createConsumer(consumerOptions);
   await consumer
     .use(Middleware.Json.parse)
+    .use([
+      Middleware.MsgType,
+      Middleware.MonitorMetrics,
+      Middleware.WithoutMsgType,
+    ])
     .use((err, msg, next) => {
       console.log('Consume: ', msg.content);
       msg.ack();
@@ -79,6 +85,8 @@ const run = async () => {
       Middleware.Schema.validator(schema),
       Middleware.Error.Log,
       Middleware.Error.BreakChain,
+      Middleware.MsgType,
+      Middleware.MonitorMetrics,
     ])
     .use((err, msg, next) => {
       console.log('Send:', msg.content);
@@ -90,9 +98,12 @@ const run = async () => {
       data: `test message ${i}`,
     });
   }
+  await publisher.send('hello');
+  await publisher.send({ data: 10 });
   setTimeout(async () => {
     await publisher.close(amqpExplorer.closeConnection.bind(amqpExplorer));
     await consumer.close(amqpExplorer.closeConnection.bind(amqpExplorer));
+    await getMetrics();
   }, 1000);
 };
 
