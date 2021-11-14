@@ -4,7 +4,7 @@
   "description": "Molfar AMQP Client based on AMQP 0-9-1 library",
   "main": "lib/index.js",
   "scripts": {
-    "test": "jest --no-cache --runInBand --forceExit --passWithNoTests --coverage",
+    "test": "jest --coverage",
     "test-dev": "jest --watch",
     "example": "node example",
     "example-dev": "nodemon --exec node_modules/.bin/babel-node example.js",
@@ -44,6 +44,7 @@
     "jest-openapi": "^0.14.0",
     "jest-stare": "^2.3.0",
     "jsdoc-to-markdown": "^7.0.1",
+    "mock-amqplib": "^1.4.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.4.1",
     "uuid": "^8.3.2",

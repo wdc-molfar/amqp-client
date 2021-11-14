@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable import/no-named-as-default-member */
 /* eslint-disable import/no-named-as-default */
-import { Middleware, yaml2js } from './lib';
+import { Middlewares, yaml2js } from './lib';
 import AmqpExplorer from './lib/infrastructure/amqp-explorer';
 import { getMetrics } from './lib/utils/metrics';
 
@@ -57,12 +57,13 @@ const inputSchema = yaml2js(`
 const run = async () => {
   const amqpExplorer = AmqpExplorer.getInstance();
   const consumer = await amqpExplorer.createConsumer(consumerOptions);
+  await consumer.moduleInit();
   await consumer
-    .use(Middleware.Json.parse)
+    .use(Middlewares.Json.parse)
     .use([
-      Middleware.MsgType,
-      Middleware.MonitorMetrics,
-      Middleware.WithoutMsgType,
+      Middlewares.MsgType,
+      Middlewares.MonitorMetrics,
+      Middlewares.WithoutMsgType,
     ])
     .use((err, msg, next) => {
       console.log('Consume: ', msg.content);
@@ -70,29 +71,32 @@ const run = async () => {
       next();
     })
     .use([
-      Middleware.Schema.validator(inputSchema),
-      Middleware.Error.Log,
-      Middleware.Error.BreakChain,
-      Middleware.Filter((msg) => msg.content && msg.content.data.endsWith('5')),
+      Middlewares.Schema.validator(inputSchema),
+      Middlewares.Error.Log,
+      Middlewares.Error.BreakChain,
+      Middlewares.Filter(
+        (msg) => msg.content && msg.content.data.endsWith('5'),
+      ),
     ])
     .use(async (err, msg, next) => {
       console.log('Process:', msg.content);
     })
     .start();
   const publisher = await amqpExplorer.createPublisher(publisherOptions);
+  await publisher.moduleInit();
   publisher
     .use([
-      Middleware.Schema.validator(schema),
-      Middleware.Error.Log,
-      Middleware.Error.BreakChain,
-      Middleware.MsgType,
-      Middleware.MonitorMetrics,
+      Middlewares.Schema.validator(schema),
+      Middlewares.Error.Log,
+      Middlewares.Error.BreakChain,
+      Middlewares.MsgType,
+      Middlewares.MonitorMetrics,
     ])
     .use((err, msg, next) => {
       console.log('Send:', msg.content);
       next();
     })
-    .use(Middleware.Json.stringify);
+    .use(Middlewares.Json.stringify);
   for (let i = 1; i <= 5; i++) {
     await publisher.send({
       data: `test message ${i}`,
