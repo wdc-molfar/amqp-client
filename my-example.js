@@ -1,9 +1,7 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable import/no-named-as-default-member */
-/* eslint-disable import/no-named-as-default */
-import { Middlewares, yaml2js } from './lib';
-import AmqpExplorer from './lib/infrastructure/amqp-explorer';
-import { getMetrics } from './lib/utils/metrics';
+const { Middlewares, yaml2js } = require('./lib');
+const AmqpExplorer = require('./lib/infrastructure/amqp-explorer');
+const { getMetrics } = require('./lib/utils/metrics');
 
 const amqp = {
   url: 'amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg?heartbeat=60',
