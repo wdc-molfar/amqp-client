@@ -73,7 +73,7 @@
     "@molfar/msapi-schemas": "github:wdc-molfar/msapi-schemas",
     "ajv": "^8.6.3",
     "ajv-errors": "^3.0.0",
-    "amqp-connection-manager": "^3.7.0",
+    "ajv-formats": "^2.1.1",
     "amqplib": "^0.8.0",
     "amqplib-plus": "^1.0.9",
     "express": "^4.17.1",
