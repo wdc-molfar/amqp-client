@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
-const { Middlewares, yaml2js } = require('./lib');
-const AmqpExplorer = require('./lib/infrastructure/amqp-explorer');
+const { Middlewares, yaml2js,js2yaml } = require('./lib');
+const AmqpManager = require('./lib/infrastructure/amqp-manager');
 const { getMetrics } = require('./lib/utils/metrics');
 
 const amqp = {
@@ -14,6 +14,7 @@ const exchange = {
 const consumerOptions = {
   amqp,
   queue: {
+    name: "TEST",
     exchange,
   },
 };
@@ -53,9 +54,10 @@ const inputSchema = yaml2js(`
 `);
 
 const run = async () => {
-  const amqpExplorer = AmqpExplorer.getInstance();
-  const consumer = await amqpExplorer.createConsumer(consumerOptions);
-  await consumer.moduleInit();
+  // const AmqpManager = AmqpManager.getInstance();
+
+  const consumer = await AmqpManager.createConsumer(consumerOptions);
+  // await consumer.moduleInit();
   await consumer
     .use(Middlewares.Json.parse)
     .use([
@@ -80,8 +82,8 @@ const run = async () => {
       console.log('Process:', msg.content);
     })
     .start();
-  const publisher = await amqpExplorer.createPublisher(publisherOptions);
-  await publisher.moduleInit();
+  const publisher = await AmqpManager.createPublisher(publisherOptions);
+  // await publisher.moduleInit();
   publisher
     .use([
       Middlewares.Schema.validator(schema),
@@ -103,8 +105,8 @@ const run = async () => {
   await publisher.send('hello');
   await publisher.send({ data: 10 });
   setTimeout(async () => {
-    await publisher.close(amqpExplorer.closeConnection.bind(amqpExplorer));
-    await consumer.close(amqpExplorer.closeConnection.bind(amqpExplorer));
+    await publisher.close()//AmqpManager.closeConnection.bind(AmqpManager));
+    await consumer.close()//AmqpManager.closeConnection.bind(AmqpManager));
     await getMetrics();
   }, 1000);
 };
