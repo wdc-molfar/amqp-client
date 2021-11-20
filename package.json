@@ -5,13 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "jest --coverage",
-    "test-dev": "jest --watch",
-    "example": "node example",
-    "example-dev": "nodemon example.js",
-    "my-example-dev": "nodemon my-example.js",
     "docs:api": "jsdoc2md  --template docs/.config/README.hbs --files lib/**/*.js  > docs/api/README.md",
-    "docs:schemas": "node ./build/docs/prepare && jsonschema2md -d ./docs/schemas/json -o ./docs/schemas -p version,test -x ./docs/schemas/json",
-    "docs:build": "npm run test && npm run docs:api && npm run docs:schemas",
+    "docs:build": "npm run test && npm run docs:api",
     "docs:dev": " npm run docs:build && npx vuepress dev docs",
     "docs:prepublish": "npm run docs:build && npx vuepress build docs",
     "docs:gh-pages": "gh-pages.sh"

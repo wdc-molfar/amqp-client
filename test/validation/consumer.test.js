@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-const ConsumerValidate = require('../../validation/consumer');
+const ConsumerValidate = require('../../lib/validation/consumer');
 
 describe('Consumer validate', () => {
   it('should return correct error message with missing amqp, queue, message properties', () => {
@@ -339,7 +339,7 @@ describe('Consumer validate', () => {
     expect(
       ConsumerValidate.validateOptions({
         queue: {
-          name: null,
+          name: "test",
           exchange: {
             name: 'amqp_test_exchange',
             mode: 'fanout',
@@ -356,7 +356,7 @@ describe('Consumer validate', () => {
             prefetch: 1,
           },
         },
-        message: { options: { noAck: false, exclusive: false } },
+        // message: { options: { noAck: false, exclusive: false } },
         amqp: {
           url: 'amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg?heartbeat=60',
         },

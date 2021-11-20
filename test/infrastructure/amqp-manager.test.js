@@ -1,10 +1,10 @@
 const amqplib = require('amqplib');
-const AmqpExplorer = require('../../infrastructure/amqp-explorer');
-const Publisher = require('../../infrastructure/publisher');
-const Consumer = require('../../infrastructure/consumer');
+const AmqpManager = require('../../lib/infrastructure/amqp-manager');
+const Publisher = require('../../lib/infrastructure/publisher');
+const Consumer = require('../../lib/infrastructure/consumer');
 
-jest.mock('../../infrastructure/consumer');
-jest.mock('../../infrastructure/publisher');
+jest.mock('../../lib/infrastructure/consumer');
+jest.mock('../../lib/infrastructure/publisher');
 
 const url = 'test_url';
 const connectionCommonConfig = {
@@ -14,7 +14,7 @@ const connectionCommonConfig = {
   clients: [],
 };
 
-describe('AmqpExplorer - testing class', () => {
+describe('AmqpManager - testing class', () => {
   afterAll(() => {
     jest.restoreAllMocks();
   });
@@ -26,27 +26,27 @@ describe('AmqpExplorer - testing class', () => {
   }));
 
   it('should return correct instance', () => {
-    const amqpExplorerFirst = AmqpExplorer.getInstance();
-    const amqpExplorerSecond = AmqpExplorer.getInstance();
-    expect(amqpExplorerFirst).toEqual(amqpExplorerSecond);
-    expect(AmqpExplorer.pool).toEqual(expect.anything(Map));
+    const AmqpManagerFirst = AmqpManager.getInstance();
+    const AmqpManagerSecond = AmqpManager.getInstance();
+    expect(AmqpManagerFirst).toEqual(AmqpManagerSecond);
+    expect(AmqpManager.pool).toEqual(expect.anything(Map));
   });
 
   it('should return correct connection config by url', () => {
     const pool = new Map();
     pool.set(url, connectionCommonConfig);
-    AmqpExplorer.pool = pool;
-    const amqpExplorer = AmqpExplorer.getInstance();
+    AmqpManager.pool = pool;
+    const AmqpManager = AmqpManager.getInstance();
 
-    expect(amqpExplorer.getConnectionConfig(url)).toEqual(
+    expect(AmqpManager.getConnectionConfig(url)).toEqual(
       connectionCommonConfig,
     );
   });
 
   it('should return correct connection config by client', () => {
-    const amqpExplorer = AmqpExplorer.getInstance();
-    amqpExplorer.setConnectionConfig(url, connectionCommonConfig);
-    expect(AmqpExplorer.pool.get(url)).toEqual(connectionCommonConfig);
+    const AmqpManager = AmqpManager.getInstance();
+    AmqpManager.setConnectionConfig(url, connectionCommonConfig);
+    expect(AmqpManager.pool.get(url)).toEqual(connectionCommonConfig);
   });
 
   it('should return correct connection config by url', () => {
@@ -57,10 +57,10 @@ describe('AmqpExplorer - testing class', () => {
     };
     const pool = new Map();
     pool.set(url, connectionConfig);
-    AmqpExplorer.pool = pool;
-    const amqpExplorer = AmqpExplorer.getInstance();
+    AmqpManager.pool = pool;
+    const AmqpManager = AmqpManager.getInstance();
 
-    expect(amqpExplorer.getClientConnection(client)).toEqual([
+    expect(AmqpManager.getClientConnection(client)).toEqual([
       url,
       connectionConfig,
     ]);
@@ -76,20 +76,20 @@ describe('AmqpExplorer - testing class', () => {
       url: 'amqp:localhost/second',
     };
 
-    const amqpExplorer = AmqpExplorer.getInstance();
-    const resultFirst = await amqpExplorer.getConnection(
+    const AmqpManager = AmqpManager.getInstance();
+    const resultFirst = await AmqpManager.getConnection(
       clientFirst,
       optionsFirst,
     );
-    const resultSecond = await amqpExplorer.getConnection(
+    const resultSecond = await AmqpManager.getConnection(
       clientSecond,
       optionsFirst,
     );
-    const resultThird = await amqpExplorer.getConnection(
+    const resultThird = await AmqpManager.getConnection(
       clientFirst,
       optionsSecond,
     );
-    const resultFourth = await amqpExplorer.getConnection(
+    const resultFourth = await AmqpManager.getConnection(
       clientSecond,
       optionsSecond,
     );
@@ -122,8 +122,8 @@ describe('AmqpExplorer - testing class', () => {
       },
       exchange: { name: 'amqp_test_exchange' },
     };
-    const amqpExplorer = AmqpExplorer.getInstance();
-    const publisher = await amqpExplorer.createPublisher(options);
+    const AmqpManager = AmqpManager.getInstance();
+    const publisher = await AmqpManager.createPublisher(options);
 
     expect(publisher).toBeDefined();
     expect(Publisher).toBeCalledWith(
@@ -149,8 +149,8 @@ describe('AmqpExplorer - testing class', () => {
         },
       },
     };
-    const amqpExplorer = AmqpExplorer.getInstance();
-    const consumer = await amqpExplorer.createConsumer(options);
+    const AmqpManager = AmqpManager.getInstance();
+    const consumer = await AmqpManager.createConsumer(options);
 
     expect(consumer).toBeDefined();
     expect(Consumer).toBeCalledWith(
@@ -179,9 +179,9 @@ describe('AmqpExplorer - testing class', () => {
     };
     const pool = new Map();
     pool.set(url, connectionConfig);
-    AmqpExplorer.pool = pool;
-    const amqpExplorer = AmqpExplorer.getInstance();
-    await amqpExplorer.closeConnection(client);
+    AmqpManager.pool = pool;
+    const AmqpManager = AmqpManager.getInstance();
+    await AmqpManager.closeConnection(client);
 
     expect(connectionConfig.connection.close).toBeCalledTimes(1);
   });
@@ -199,20 +199,20 @@ describe('AmqpExplorer - testing class', () => {
     };
     const pool = new Map();
     pool.set(url, connectionConfig);
-    AmqpExplorer.pool = pool;
-    const amqpExplorer = AmqpExplorer.getInstance();
-    await amqpExplorer.clearAndShutdown();
+    AmqpManager.pool = pool;
+    const AmqpManager = AmqpManager.getInstance();
+    await AmqpManager.clearAndShutdown();
 
     expect(connectionConfig.connection.close).toBeCalledTimes(1);
-    expect(AmqpExplorer.pool.size).toBe(0);
+    expect(AmqpManager.pool.size).toBe(0);
   });
 
   it('should return correct size of pool of connection configs', () => {
     const pool = new Map();
     pool.set(url, connectionCommonConfig);
-    AmqpExplorer.pool = pool;
-    const amqpExplorer = AmqpExplorer.getInstance();
+    AmqpManager.pool = pool;
+    const AmqpManager = AmqpManager.getInstance();
 
-    expect(amqpExplorer.size()).toEqual(1);
+    expect(AmqpManager.size()).toEqual(1);
   });
 });
