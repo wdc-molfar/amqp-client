@@ -14,7 +14,7 @@ const exchange = {
 const consumerOptions = {
   amqp,
   queue: {
-    name: 'TEST',
+    name: 'test',
     exchange,
   },
 };
@@ -54,8 +54,6 @@ const inputSchema = yaml2js(`
 `);
 
 const run = async () => {
-  // const AmqpManager = AmqpManager.getInstance();
-
   const pStages = new Counter({
     name: 'p_stages',
     help: 'Stages of producer process',
@@ -69,7 +67,7 @@ const run = async () => {
   });
 
   const consumer = await AmqpManager.createConsumer(consumerOptions);
-  // await consumer.moduleInit();
+
   await consumer
     .use(Middlewares.Json.parse)
     .use(
@@ -129,7 +127,6 @@ const run = async () => {
     .start();
 
   const publisher = await AmqpManager.createPublisher(publisherOptions);
-  // await publisher.moduleInit();
   publisher
     .use([
       Middlewares.Metric({
@@ -138,33 +135,26 @@ const run = async () => {
           metric.inc({ stage: 'generated' });
         },
       }),
-
       Middlewares.Schema.validator(schema),
       Middlewares.Error.Log,
-
       Middlewares.Metric({
         metric: pStages,
         callback: (err, msg, metric) => {
           if (err) metric.inc({ stage: 'validation-errors' });
         },
       }),
-
       Middlewares.Error.BreakChain,
-      // Middlewares.MsgType,
-
       Middlewares.Metric({
         metric: pStages,
         callback: (err, msg, metric) => {
           metric.inc({ stage: 'validated' });
         },
       }),
-
       Middlewares.Metric({
         metric: new Counter({
           name: 'produced_messages',
           help: 'Counter of Produced messages',
         }),
-
         callback: (err, msg, metric) => {
           metric.inc();
         },
@@ -175,7 +165,6 @@ const run = async () => {
       next();
     })
     .use(Middlewares.Json.stringify)
-
     .use(
       Middlewares.Metric({
         metric: pStages,
@@ -193,8 +182,8 @@ const run = async () => {
   await publisher.send('hello');
   await publisher.send({ data: 10 });
   setTimeout(async () => {
-    await publisher.close(); // AmqpManager.closeConnection.bind(AmqpManager));
-    await consumer.close(); // AmqpManager.closeConnection.bind(AmqpManager));
+    await publisher.close();
+    await consumer.close();
     const metrics = await getMetrics();
     console.log('Metrics:');
     console.log(JSON.stringify(metrics, null, ' '));
