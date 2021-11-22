@@ -1,15 +1,12 @@
 /* eslint-disable import/no-named-as-default */
 /* eslint-disable import/no-named-as-default-member */
-const { v4 } = require('uuid');
 const amqp = require('amqplib');
-const amqpMock = require('mock-amqplib');
 const { Middlewares } = require('../../lib');
+const AmqpManager = require('../../lib/infrastructure/amqp-manager');
 const Publisher = require('../../lib/infrastructure/publisher');
 const Middleware = require('../../lib/middlewares/wrapper');
 
 jest.mock('../../lib/middlewares/wrapper');
-
-const client = v4();
 
 const options = {
   exchange: {
@@ -26,6 +23,11 @@ const options = {
 const content = 'test_content';
 
 describe('Consumer - testing class', () => {
+  let AmqpManagerClone;
+  beforeEach(() => {
+    AmqpManagerClone = AmqpManager.newInstance();
+  });
+
   afterAll(() => {
     jest.restoreAllMocks();
   });
@@ -37,18 +39,19 @@ describe('Consumer - testing class', () => {
     close: jest.fn(),
   };
 
-  it('should return correct instance', () => {
-    const publisher = new Publisher(
-      {
-        connection: {
-          heartbeat: 60,
-        },
+  it('should return correct instance', async () => {
+    const mockConnection = {
+      ...mockCommonConnection,
+      connection: {
+        heartbeat: 60,
       },
-      v4(),
-      {
-        amqp: options.amqp,
-      },
-    );
+      createChannel: jest.fn().mockResolvedValueOnce(mockCommonChannel),
+    };
+    jest.spyOn(amqp, 'connect').mockResolvedValueOnce(mockConnection);
+
+    const publisher = new Publisher(AmqpManagerClone, options);
+    await publisher.moduleInit();
+
     expect(publisher.connection).toEqual(
       expect.objectContaining({
         connection: {
@@ -67,15 +70,14 @@ describe('Consumer - testing class', () => {
   it('should initialize consumer dependencies correctly', async () => {
     const mockConnection = {
       ...mockCommonConnection,
-      createChannel: jest.fn().mockResolvedValueOnce(mockCommonChannel),
+      createChannel: jest.fn().mockResolvedValue(mockCommonChannel),
     };
-    jest.spyOn(amqp, 'connect').mockResolvedValueOnce(mockConnection);
+    jest.spyOn(amqp, 'connect').mockResolvedValue(mockConnection);
 
-    const connection = await amqp.connect(options.amqp);
-    const publisher = new Publisher(connection, client, options);
-
+    const publisher = new Publisher(AmqpManagerClone, options);
     await publisher.moduleInit();
-    expect(connection.createChannel).toHaveBeenCalled();
+
+    expect(publisher.connection.createChannel).toHaveBeenCalled();
     expect(publisher.channel).toBeDefined();
     expect(publisher.channel.assertExchange).toHaveBeenCalledWith(
       options.exchange.name,
@@ -90,10 +92,10 @@ describe('Consumer - testing class', () => {
     Middleware.mockImplementation(() => ({
       use: jest.fn().mockReturnThis(),
     }));
-    const connection = await amqpMock.connect(options.amqp);
-    const publisher = new Publisher(connection, client, options);
+    const publisher = new Publisher(AmqpManagerClone, options);
     await publisher.moduleInit();
     const result = publisher.use(Middlewares.Json.parse);
+
     expect(publisher.middleware.use).toHaveBeenCalledWith(
       Middlewares.Json.parse,
     );
@@ -121,8 +123,7 @@ describe('Consumer - testing class', () => {
       }),
     }));
 
-    const connection = await amqp.connect(options.amqp);
-    const publisher = new Publisher(connection, client, options);
+    const publisher = new Publisher(AmqpManagerClone, options);
     await publisher.moduleInit();
     await publisher.send(content);
 
@@ -148,14 +149,16 @@ describe('Consumer - testing class', () => {
       createChannel: jest.fn().mockResolvedValueOnce(mockChannel),
     };
     jest.spyOn(amqp, 'connect').mockResolvedValueOnce(mockConnection);
-    const closeCallback = jest.fn();
 
-    const connection = await amqp.connect(options.amqp);
-    const publisher = new Publisher(connection, client, options);
+    const publisher = new Publisher(AmqpManagerClone, options);
     await publisher.moduleInit();
-    await publisher.close(closeCallback);
+    await publisher.close();
 
     expect(publisher.channel.close).toHaveBeenCalled();
-    expect(closeCallback).toHaveBeenCalledWith(client);
+    expect(AmqpManagerClone.pool.get(options.amqp.url)).toEqual(
+      expect.objectContaining({
+        clients: [],
+      }),
+    );
   });
 });

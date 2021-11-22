@@ -339,7 +339,7 @@ describe('Consumer validate', () => {
     expect(
       ConsumerValidate.validateOptions({
         queue: {
-          name: "test",
+          name: 'test',
           exchange: {
             name: 'amqp_test_exchange',
             mode: 'fanout',

@@ -1,4 +1,4 @@
-const amqplib = require('amqplib');
+const amqp = require('amqplib');
 const AmqpManager = require('../../lib/infrastructure/amqp-manager');
 const Publisher = require('../../lib/infrastructure/publisher');
 const Consumer = require('../../lib/infrastructure/consumer');
@@ -15,38 +15,29 @@ const connectionCommonConfig = {
 };
 
 describe('AmqpManager - testing class', () => {
-  afterAll(() => {
-    jest.restoreAllMocks();
+  let AmqpManagerClone;
+  beforeEach(() => {
+    AmqpManagerClone = AmqpManager.newInstance();
   });
 
-  jest.mock('amqplib', () => ({
-    connect: jest.fn().mockImplementation((optionsUrl) => ({
-      connection: `${optionsUrl}_connection`,
-    })),
-  }));
-
-  it('should return correct instance', () => {
-    const AmqpManagerFirst = AmqpManager.getInstance();
-    const AmqpManagerSecond = AmqpManager.getInstance();
-    expect(AmqpManagerFirst).toEqual(AmqpManagerSecond);
-    expect(AmqpManager.pool).toEqual(expect.anything(Map));
+  afterAll(() => {
+    jest.restoreAllMocks();
   });
 
   it('should return correct connection config by url', () => {
     const pool = new Map();
     pool.set(url, connectionCommonConfig);
-    AmqpManager.pool = pool;
-    const AmqpManager = AmqpManager.getInstance();
+    AmqpManagerClone.pool = pool;
 
-    expect(AmqpManager.getConnectionConfig(url)).toEqual(
+    expect(AmqpManagerClone.getConnectionConfig(url)).toEqual(
       connectionCommonConfig,
     );
   });
 
   it('should return correct connection config by client', () => {
-    const AmqpManager = AmqpManager.getInstance();
-    AmqpManager.setConnectionConfig(url, connectionCommonConfig);
-    expect(AmqpManager.pool.get(url)).toEqual(connectionCommonConfig);
+    AmqpManagerClone.setConnectionConfig(url, connectionCommonConfig);
+
+    expect(AmqpManagerClone.pool.get(url)).toEqual(connectionCommonConfig);
   });
 
   it('should return correct connection config by url', () => {
@@ -57,80 +48,61 @@ describe('AmqpManager - testing class', () => {
     };
     const pool = new Map();
     pool.set(url, connectionConfig);
-    AmqpManager.pool = pool;
-    const AmqpManager = AmqpManager.getInstance();
+    AmqpManagerClone.pool = pool;
 
-    expect(AmqpManager.getClientConnection(client)).toEqual([
+    expect(AmqpManagerClone.getClientConnection(client)).toEqual([
       url,
       connectionConfig,
     ]);
   });
 
-  it.skip('should create or get existing connection for client', async () => {
+  it('should create or get existing connection for client', async () => {
     const clientFirst = 'test_client_first';
     const clientSecond = 'test_client_second';
-    const optionsFirst = {
+    const options = {
       url: 'amqp:localhost/first',
     };
-    const optionsSecond = {
-      url: 'amqp:localhost/second',
-    };
 
-    const AmqpManager = AmqpManager.getInstance();
-    const resultFirst = await AmqpManager.getConnection(
+    jest.spyOn(amqp, 'connect').mockResolvedValueOnce({
+      connection: options,
+    });
+
+    const resultFirst = await AmqpManagerClone.getConnection(
       clientFirst,
-      optionsFirst,
+      options,
     );
-    const resultSecond = await AmqpManager.getConnection(
+
+    const resultSecond = await AmqpManagerClone.getConnection(
       clientSecond,
-      optionsFirst,
+      options,
     );
-    const resultThird = await AmqpManager.getConnection(
-      clientFirst,
-      optionsSecond,
-    );
-    const resultFourth = await AmqpManager.getConnection(
-      clientSecond,
-      optionsSecond,
-    );
+
     expect(resultFirst).toEqual(
       expect.objectContaining({
-        connection: 'amqp:localhost/first_connection',
+        connection: options,
       }),
     );
+
     expect(resultSecond).toEqual(
       expect.objectContaining({
-        connection: 'amqp:localhost/first_connection',
-      }),
-    );
-    expect(resultThird).toEqual(
-      expect.objectContaining({
-        connection: 'amqp:localhost/second_connection',
-      }),
-    );
-    expect(resultFourth).toEqual(
-      expect.objectContaining({
-        connection: 'amqp:localhost/second_connection',
+        connection: options,
       }),
     );
   });
 
-  it.skip('should create correct publisher', async () => {
+  it('should create correct publisher', async () => {
     const options = {
       amqp: {
         url: 'amqp:localhost/my',
       },
       exchange: { name: 'amqp_test_exchange' },
     };
-    const AmqpManager = AmqpManager.getInstance();
-    const publisher = await AmqpManager.createPublisher(options);
+    jest.spyOn(amqp, 'connect').mockResolvedValueOnce({});
+    const publisher = await AmqpManagerClone.createPublisher(options);
 
     expect(publisher).toBeDefined();
     expect(Publisher).toBeCalledWith(
-      expect.objectContaining({
-        connection: 'amqp:localhost/my_connection',
-      }),
-      expect.anything(String),
+      AmqpManagerClone,
       expect.objectContaining({
         amqp: options.amqp,
         exchange: expect.objectContaining(options.exchange),
@@ -138,29 +110,28 @@ describe('AmqpManager - testing class', () => {
     );
   });
 
-  it.skip('should create correct consumer', async () => {
+  it('should create correct consumer', async () => {
     const options = {
       amqp: {
         url: 'amqp:localhost/my',
       },
       queue: {
+        name: 'test',
         exchange: {
           name: 'amqp_test_exchange',
         },
       },
     };
-    const AmqpManager = AmqpManager.getInstance();
-    const consumer = await AmqpManager.createConsumer(options);
+    jest.spyOn(amqp, 'connect').mockResolvedValueOnce({});
+    const consumer = await AmqpManagerClone.createConsumer(options);
 
     expect(consumer).toBeDefined();
     expect(Consumer).toBeCalledWith(
-      expect.objectContaining({
-        connection: 'amqp:localhost/my_connection',
-      }),
-      expect.anything(String),
+      AmqpManagerClone,
       expect.objectContaining({
         amqp: options.amqp,
         queue: expect.objectContaining({
+          name: 'test',
           exchange: expect.objectContaining(options.queue.exchange),
         }),
       }),
@@ -179,9 +150,9 @@ describe('AmqpManager - testing class', () => {
     };
     const pool = new Map();
     pool.set(url, connectionConfig);
-    AmqpManager.pool = pool;
-    const AmqpManager = AmqpManager.getInstance();
-    await AmqpManager.closeConnection(client);
+    AmqpManagerClone.pool = pool;
+
+    await AmqpManagerClone.closeConnection(client);
 
     expect(connectionConfig.connection.close).toBeCalledTimes(1);
   });
@@ -199,20 +170,19 @@ describe('AmqpManager - testing class', () => {
     };
     const pool = new Map();
     pool.set(url, connectionConfig);
-    AmqpManager.pool = pool;
-    const AmqpManager = AmqpManager.getInstance();
-    await AmqpManager.clearAndShutdown();
+    AmqpManagerClone.pool = pool;
+
+    await AmqpManagerClone.clearAndShutdown();
 
     expect(connectionConfig.connection.close).toBeCalledTimes(1);
-    expect(AmqpManager.pool.size).toBe(0);
+    expect(AmqpManagerClone.pool.size).toBe(0);
   });
 
   it('should return correct size of pool of connection configs', () => {
     const pool = new Map();
     pool.set(url, connectionCommonConfig);
-    AmqpManager.pool = pool;
-    const AmqpManager = AmqpManager.getInstance();
+    AmqpManagerClone.pool = pool;
 
-    expect(AmqpManager.size()).toEqual(1);
+    expect(AmqpManagerClone.size()).toEqual(1);
   });
 });
