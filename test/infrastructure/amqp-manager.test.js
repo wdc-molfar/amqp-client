@@ -2,6 +2,7 @@ const amqp = require('amqplib');
 const AmqpManager = require('../../lib/infrastructure/amqp-manager');
 const Publisher = require('../../lib/infrastructure/publisher');
 const Consumer = require('../../lib/infrastructure/consumer');
+const AmqpManagerCaptions = require('./captions/amqp-manager');
 
 jest.mock('../../lib/infrastructure/consumer');
 jest.mock('../../lib/infrastructure/publisher');
@@ -14,7 +15,7 @@ const connectionCommonConfig = {
   clients: [],
 };
 
-describe('AmqpManager - testing class', () => {
+describe(AmqpManagerCaptions.amqpManagerDescription.ua, () => {
   let AmqpManagerClone;
   beforeEach(() => {
     AmqpManagerClone = AmqpManager.newInstance();
@@ -24,7 +25,7 @@ describe('AmqpManager - testing class', () => {
     jest.restoreAllMocks();
   });
 
-  it('should return correct connection config by url', () => {
+  it(AmqpManagerCaptions.correctConnectionUrl.ua, () => {
     const pool = new Map();
     pool.set(url, connectionCommonConfig);
     AmqpManagerClone.pool = pool;
@@ -34,13 +35,13 @@ describe('AmqpManager - testing class', () => {
     );
   });
 
-  it('should return correct connection config by client', () => {
+  it(AmqpManagerCaptions.correctSaveConnectionClient.ua, () => {
     AmqpManagerClone.setConnectionConfig(url, connectionCommonConfig);
 
     expect(AmqpManagerClone.pool.get(url)).toEqual(connectionCommonConfig);
   });
 
-  it('should return correct connection config by url', () => {
+  it(AmqpManagerCaptions.correctGetConnectionClient.ua, () => {
     const client = 'test_client';
     const connectionConfig = {
       ...connectionCommonConfig,
@@ -56,7 +57,7 @@ describe('AmqpManager - testing class', () => {
     ]);
   });
 
-  it('should create or get existing connection for client', async () => {
+  it(AmqpManagerCaptions.createGetExistingConnectionClient.ua, async () => {
     const clientFirst = 'test_client_first';
     const clientSecond = 'test_client_second';
     const options = {
@@ -90,7 +91,7 @@ describe('AmqpManager - testing class', () => {
     );
   });
 
-  it('should create correct publisher', async () => {
+  it(AmqpManagerCaptions.correctCreatePublisher.ua, async () => {
     const options = {
       amqp: {
         url: 'amqp:localhost/my',
@@ -110,7 +111,7 @@ describe('AmqpManager - testing class', () => {
     );
   });
 
-  it('should create correct consumer', async () => {
+  it(AmqpManagerCaptions.correctCreateConsumer.ua, async () => {
     const options = {
       amqp: {
         url: 'amqp:localhost/my',
@@ -138,7 +139,7 @@ describe('AmqpManager - testing class', () => {
     );
   });
 
-  it('should close correct connection by correct client', async () => {
+  it(AmqpManagerCaptions.closeConnectionClient.ua, async () => {
     const client = 'test_client';
     const connectionConfig = {
       ...connectionCommonConfig,
@@ -157,7 +158,7 @@ describe('AmqpManager - testing class', () => {
     expect(connectionConfig.connection.close).toBeCalledTimes(1);
   });
 
-  it('should close correct connection for all clientz', async () => {
+  it(AmqpManagerCaptions.closeConnectionAllClients.ua, async () => {
     const clientFirst = 'test_client_first';
     const clientSecond = 'test_client_second';
     const connectionConfig = {
@@ -178,7 +179,7 @@ describe('AmqpManager - testing class', () => {
     expect(AmqpManagerClone.pool.size).toBe(0);
   });
 
-  it('should return correct size of pool of connection configs', () => {
+  it(AmqpManagerCaptions.connectionConfigsPoolSize.ua, () => {
     const pool = new Map();
     pool.set(url, connectionCommonConfig);
     AmqpManagerClone.pool = pool;

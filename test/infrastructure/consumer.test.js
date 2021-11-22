@@ -3,6 +3,7 @@ const { Middlewares } = require('../../lib');
 const AmqpManager = require('../../lib/infrastructure/amqp-manager');
 const Consumer = require('../../lib/infrastructure/consumer');
 const Middleware = require('../../lib/middlewares/wrapper');
+const ConsumerCaptions = require('./captions/consumer');
 
 jest.mock('../../lib/middlewares/wrapper');
 
@@ -34,7 +35,7 @@ const options = {
 const queue = 'test_queue';
 const content = 'test_content';
 
-describe('Consumer - testing class', () => {
+describe(ConsumerCaptions.consumerDescription.ua, () => {
   let AmqpManagerClone;
   beforeEach(() => {
     AmqpManagerClone = AmqpManager.newInstance();
@@ -53,7 +54,7 @@ describe('Consumer - testing class', () => {
     close: jest.fn(),
   };
 
-  it('should return correct instance', async () => {
+  it(ConsumerCaptions.correctInstance.ua, async () => {
     const mockConnection = {
       ...mockCommonConnection,
       connection: {
@@ -81,7 +82,7 @@ describe('Consumer - testing class', () => {
     );
   });
 
-  it('should initialize consumer dependencies correctly', async () => {
+  it(ConsumerCaptions.initializeDependencies.ua, async () => {
     const mockConnection = {
       ...mockCommonConnection,
       createChannel: jest.fn().mockResolvedValueOnce(mockCommonChannel),
@@ -111,7 +112,7 @@ describe('Consumer - testing class', () => {
     expect(consumer.middleware).toBeDefined();
   });
 
-  it('should save callback to middleware', async () => {
+  it(ConsumerCaptions.callbackMiddleware.ua, async () => {
     const mockConnection = {
       ...mockCommonConnection,
       createChannel: jest.fn().mockResolvedValueOnce(mockCommonChannel),
@@ -132,7 +133,7 @@ describe('Consumer - testing class', () => {
     expect(result).toEqual(consumer);
   });
 
-  it('should execute logic correctly', async () => {
+  it(ConsumerCaptions.executeLogic.ua, async () => {
     const mockChannel = {
       ...mockCommonChannel,
       consume: jest.fn().mockImplementation(async (queueParam, callback) => {
@@ -180,7 +181,7 @@ describe('Consumer - testing class', () => {
     );
   });
 
-  it('should close existing channel and connection', async () => {
+  it(ConsumerCaptions.closeChannelConnection.ua, async () => {
     const mockChannel = {
       ...mockCommonChannel,
       close: jest.fn(),

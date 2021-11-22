@@ -5,6 +5,7 @@ const { Middlewares } = require('../../lib');
 const AmqpManager = require('../../lib/infrastructure/amqp-manager');
 const Publisher = require('../../lib/infrastructure/publisher');
 const Middleware = require('../../lib/middlewares/wrapper');
+const PublisherCaptions = require('./captions/publisher');
 
 jest.mock('../../lib/middlewares/wrapper');
 
@@ -22,7 +23,7 @@ const options = {
 
 const content = 'test_content';
 
-describe('Consumer - testing class', () => {
+describe(PublisherCaptions.publisherDescription.ua, () => {
   let AmqpManagerClone;
   beforeEach(() => {
     AmqpManagerClone = AmqpManager.newInstance();
@@ -39,7 +40,7 @@ describe('Consumer - testing class', () => {
     close: jest.fn(),
   };
 
-  it('should return correct instance', async () => {
+  it(PublisherCaptions.correctInstance.ua, async () => {
     const mockConnection = {
       ...mockCommonConnection,
       connection: {
@@ -67,7 +68,7 @@ describe('Consumer - testing class', () => {
     );
   });
 
-  it('should initialize consumer dependencies correctly', async () => {
+  it(PublisherCaptions.initializeDependencies.ua, async () => {
     const mockConnection = {
       ...mockCommonConnection,
       createChannel: jest.fn().mockResolvedValue(mockCommonChannel),
@@ -88,7 +89,7 @@ describe('Consumer - testing class', () => {
     expect(publisher.middleware).toBeDefined();
   });
 
-  it('should save callback to middleware', async () => {
+  it(PublisherCaptions.callbackMiddleware.ua, async () => {
     Middleware.mockImplementation(() => ({
       use: jest.fn().mockReturnThis(),
     }));
@@ -102,7 +103,7 @@ describe('Consumer - testing class', () => {
     expect(result).toEqual(publisher);
   });
 
-  it('should execute logic correctly', async () => {
+  it(PublisherCaptions.executeLogic.ua, async () => {
     const mockChannel = {
       ...mockCommonChannel,
       publish: jest.fn(),
@@ -139,7 +140,7 @@ describe('Consumer - testing class', () => {
     );
   });
 
-  it('should close existing channel and connection', async () => {
+  it(PublisherCaptions.closeChannelConnection.ua, async () => {
     const mockChannel = {
       ...mockCommonChannel,
       close: jest.fn(),
