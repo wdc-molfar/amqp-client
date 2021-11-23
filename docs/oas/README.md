@@ -10,6 +10,40 @@
 
 ### Базовий приклад
 
+@startuml
+
+  queue  "test" <<Queue>> as Queue
+  queue  "amqp_test_exchange" <<Exchange>> as Exchange #aaeeaa 
+  
+  component  "consumer" <<Consumer>> as Consumer 
+  component  "producer" <<Producer>> as Producer #aaeeaa
+
+    Producer -> Exchange
+    Exchange -> Queue
+    Queue -> Consumer
+
+@enduml  
+
+
+```yaml
+
+amqp:
+    url: amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg
+
+queue:
+    name: initiator
+    
+    exchange:
+        name: initiator
+        mode: fanout
+
+    options:
+        noAck: true
+        
+
+```
+
+
 ```js
 
 const { Consumer, Publisher } = require('@molfar/amqp-client');
@@ -836,3 +870,52 @@ Metrics:
 ]    
 
 ```
+
+
+## Часткове оброблення та композиция результатів
+
+@startuml
+
+    frame  initiator {
+      component  "initiator" <<Producer>> as Initiator #aaeeaa
+    }
+  
+    queue  "messages" <<Exchange>> as Messages #aaeeaa 
+    queue  "messages_ner" <<Queue>> as Messages_ner
+    queue  "messages_sa" <<Queue>> as Messages_sa
+    
+    Initiator -> Messages
+    Messages --> Messages_sa
+    Messages --> Messages_ner
+
+    frame partial_sa {
+      component  "listener" <<Consumer>> as Listener_sa
+      component  "producer" <<Producer>> as Producer_sa #aaeeaa
+      Listener_sa ..> Producer_sa          
+    }
+    
+    frame partial_ner {
+      component  "listener" <<Consumer>> as Listener_ner
+      component  "producer" <<Producer>> as Producer_ner #aaeeaa
+      Listener_ner ..> Producer_ner          
+    }
+    
+    Messages_ner --> Listener_ner
+    Messages_sa --> Listener_sa
+    
+    queue  "composer_input" <<Exchange>> as Composer_input #aaeeaa 
+    
+    Producer_ner --> Composer_input
+    Producer_sa --> Composer_input
+    
+    queue "composer_input" <<Queue>> as CIQ
+    
+    Composer_input -> CIQ
+    
+    frame composer {
+        component  "listener" <<Consumer>> as CL
+    }
+    
+    CIQ --> CL
+
+@enduml  

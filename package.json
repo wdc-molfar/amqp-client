@@ -73,6 +73,7 @@
     "ajv-formats": "^2.1.1",
     "amqplib": "^0.8.0",
     "amqplib-plus": "^1.0.9",
+    "deep-extend": "^0.6.0",
     "express": "^4.17.1",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",

@@ -1,0 +1,13 @@
+
+amqp:
+    url: amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg
+
+queue:
+    name: producer
+    
+    exchange:
+        name: producer
+        mode: fanout
+
+    options:
+        noAck: true

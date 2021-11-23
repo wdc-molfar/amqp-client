@@ -1,0 +1,13 @@
+
+amqp:
+    url: amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg
+
+queue:
+    name: composer_input
+    
+    exchange:
+        name: composer_input
+        mode: fanout
+
+    options:
+        noAck: true

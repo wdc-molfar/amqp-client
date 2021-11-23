@@ -1,0 +1,23 @@
+# Worker AMQP settings
+amqp:
+    url: amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg
+
+queue:
+    name: test_task
+    exchange:
+        name: test_task
+        mode: direct
+    options:
+        prefetch: 1
+        noAck: false
+        
+message:
+    type: object
+    required:
+        - id
+        - timeout
+    properties:
+        id:
+          type: number
+        timeout:
+          type: number  

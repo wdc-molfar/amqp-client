@@ -1,0 +1,27 @@
+# Worker AMQP settings
+amqp:
+    url: amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg
+
+queue:
+    name: listen2
+    exchange:
+        name: broadcast
+        mode: fanout
+        options:
+            durable: false
+    options:
+        noAck: true
+        
+message:
+    type: object
+    required:
+        - id
+        - listener
+        - timeout
+    properties:
+        id:
+          type: number
+        listener:
+          type: number
+        timeout:
+          type: number  

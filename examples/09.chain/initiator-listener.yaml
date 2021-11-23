@@ -1,0 +1,14 @@
+
+amqp:
+    url: amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg
+
+queue:
+    name: initiator
+    
+    exchange:
+        name: initiator
+        mode: fanout
+
+    options:
+        noAck: true
+        

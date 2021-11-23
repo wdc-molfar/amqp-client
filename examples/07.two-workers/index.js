@@ -7,52 +7,17 @@ const {
   getMetrics
 } = require('../../lib');
 
-
-const amqp = {
-  url: 'amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg?heartbeat=60',
-};
-
-const exchange = yaml2js(
-`
-  name: "test_task"
-  mode: direct
-`
-)
-
-const consumerOptions = {
-  amqp,
-  queue: {
-    name: "tasks",
-    exchange,
-    options:{
-      prefetch: 1,
-      noAck: false
-    }
-  },
-};
-
-const publisherOptions = {
-  amqp,
-  exchange,
-};
+const fs = require("fs")
+const path = require("path")
 
 
-const schema = yaml2js(`
-  type: object
-  required:
-    - id
-    - timeout
-  properties:
-    id:
-      type: number
-    timeout:
-      type: number  
- `);
+const consumerOptions = yaml2js( fs.readFileSync(path.resolve(__dirname, "./worker.yaml")).toString() )
+const publisherOptions = yaml2js( fs.readFileSync(path.resolve(__dirname, "./scheduler.yaml")).toString() )
 
 const run = async () => {
 
   const schedullerPipe = [
-    Middlewares.Schema.validator(schema),
+    Middlewares.Schema.validator(publisherOptions.message),
     Middlewares.Error.Log,
     Middlewares.Error.BreakChain,
     Middlewares.Json.stringify
@@ -67,7 +32,7 @@ const run = async () => {
       next()
     },
     
-    Middlewares.Schema.validator(schema),
+    Middlewares.Schema.validator(consumerOptions.message),
     Middlewares.Error.Log,
     Middlewares.Error.BreakChain,
     

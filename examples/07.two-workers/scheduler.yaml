@@ -1,0 +1,19 @@
+# Scheduler AMQP settings
+amqp:
+    url: amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg
+
+exchange:
+    name: test_task
+    mode: direct
+        
+message:
+    type: object
+    required:
+        - id
+        - timeout
+    properties:
+        id:
+          type: number
+        timeout:
+          type: number  
+          
