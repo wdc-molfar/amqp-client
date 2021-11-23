@@ -1,13 +1,11 @@
-const { v4 } = require('uuid');
 const amqp = require('amqplib');
-const amqpMock = require('mock-amqplib');
 const { Middlewares } = require('../../lib');
+const AmqpManager = require('../../lib/infrastructure/amqp-manager');
 const Consumer = require('../../lib/infrastructure/consumer');
 const Middleware = require('../../lib/middlewares/wrapper');
+const ConsumerCaptions = require('./captions/consumer');
 
 jest.mock('../../lib/middlewares/wrapper');
-
-const client = v4();
 
 const options = {
   queue: {
@@ -37,7 +35,12 @@ const options = {
 const queue = 'test_queue';
 const content = 'test_content';
 
-describe('Consumer - testing class', () => {
+describe(ConsumerCaptions.consumerDescription.ua, () => {
+  let AmqpManagerClone;
+  beforeEach(() => {
+    AmqpManagerClone = AmqpManager.newInstance();
+  });
+
   afterAll(() => {
     jest.restoreAllMocks();
   });
@@ -51,18 +54,19 @@ describe('Consumer - testing class', () => {
     close: jest.fn(),
   };
 
-  it('should return correct instance', () => {
-    const consumer = new Consumer(
-      {
-        connection: {
-          heartbeat: 60,
-        },
+  it(ConsumerCaptions.correctInstance.ua, async () => {
+    const mockConnection = {
+      ...mockCommonConnection,
+      connection: {
+        heartbeat: 60,
       },
-      v4(),
-      {
-        amqp: options.amqp,
-      },
-    );
+      createChannel: jest.fn().mockResolvedValueOnce(mockCommonChannel),
+    };
+    jest.spyOn(amqp, 'connect').mockResolvedValueOnce(mockConnection);
+
+    const consumer = new Consumer(AmqpManagerClone, options);
+    await consumer.moduleInit();
+
     expect(consumer.connection).toEqual(
       expect.objectContaining({
         connection: {
@@ -78,18 +82,17 @@ describe('Consumer - testing class', () => {
     );
   });
 
-  it('should initialize consumer dependencies correctly', async () => {
+  it(ConsumerCaptions.initializeDependencies.ua, async () => {
     const mockConnection = {
       ...mockCommonConnection,
       createChannel: jest.fn().mockResolvedValueOnce(mockCommonChannel),
     };
     jest.spyOn(amqp, 'connect').mockResolvedValueOnce(mockConnection);
 
-    const connection = await amqp.connect(options.amqp);
-    const consumer = new Consumer(connection, client, options);
-
+    const consumer = new Consumer(AmqpManagerClone, options);
     await consumer.moduleInit();
-    expect(connection.createChannel).toHaveBeenCalled();
+
+    expect(consumer.connection.createChannel).toHaveBeenCalled();
     expect(consumer.channel).toBeDefined();
     expect(consumer.channel.assertExchange).toHaveBeenCalledWith(
       options.queue.exchange.name,
@@ -109,21 +112,28 @@ describe('Consumer - testing class', () => {
     expect(consumer.middleware).toBeDefined();
   });
 
-  it('should save callback to middleware', async () => {
+  it(ConsumerCaptions.callbackMiddleware.ua, async () => {
+    const mockConnection = {
+      ...mockCommonConnection,
+      createChannel: jest.fn().mockResolvedValueOnce(mockCommonChannel),
+    };
+    jest.spyOn(amqp, 'connect').mockResolvedValueOnce(mockConnection);
+
     Middleware.mockImplementation(() => ({
       use: jest.fn().mockReturnThis(),
     }));
-    const connection = await amqpMock.connect(options.amqp);
-    const consumer = new Consumer(connection, client, options);
+
+    const consumer = new Consumer(AmqpManagerClone, options);
     await consumer.moduleInit();
     const result = consumer.use(Middlewares.Json.parse);
+
     expect(consumer.middleware.use).toHaveBeenCalledWith(
       Middlewares.Json.parse,
     );
     expect(result).toEqual(consumer);
   });
 
-  it('should execute logic correctly', async () => {
+  it(ConsumerCaptions.executeLogic.ua, async () => {
     const mockChannel = {
       ...mockCommonChannel,
       consume: jest.fn().mockImplementation(async (queueParam, callback) => {
@@ -147,8 +157,7 @@ describe('Consumer - testing class', () => {
       }),
     }));
 
-    const connection = await amqp.connect(options.amqp);
-    const consumer = new Consumer(connection, client, options);
+    const consumer = new Consumer(AmqpManagerClone, options);
     await consumer.moduleInit();
     await consumer.start();
 
@@ -172,7 +181,7 @@ describe('Consumer - testing class', () => {
     );
   });
 
-  it('should close existing channel and connection', async () => {
+  it(ConsumerCaptions.closeChannelConnection.ua, async () => {
     const mockChannel = {
       ...mockCommonChannel,
       close: jest.fn(),
@@ -182,14 +191,16 @@ describe('Consumer - testing class', () => {
       createChannel: jest.fn().mockResolvedValueOnce(mockChannel),
     };
     jest.spyOn(amqp, 'connect').mockResolvedValueOnce(mockConnection);
-    const closeCallback = jest.fn();
 
-    const connection = await amqp.connect(options.amqp);
-    const consumer = new Consumer(connection, client, options);
+    const consumer = new Consumer(AmqpManagerClone, options);
     await consumer.moduleInit();
-    await consumer.close(closeCallback);
+    await consumer.close();
 
     expect(consumer.channel.close).toHaveBeenCalled();
-    expect(closeCallback).toHaveBeenCalledWith(client);
+    expect(AmqpManagerClone.pool.get(options.amqp.url)).toEqual(
+      expect.objectContaining({
+        clients: [],
+      }),
+    );
   });
 });
