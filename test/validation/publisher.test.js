@@ -1,8 +1,9 @@
 /* eslint-disable max-len */
 const PublisherValidate = require('../../lib/validation/publisher');
+const PublisherCaptions = require('./captions/publisher');
 
-describe('Consumer validate', () => {
-  it('should return correct error message with missing amqp, exchange, message properties', () => {
+describe(PublisherCaptions.publisherDescription.ua, () => {
+  it(PublisherCaptions.missingAmqpExchangeMessage.ua, () => {
     try {
       PublisherValidate.validateOptions({});
     } catch (err) {
@@ -11,7 +12,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect amqp property(object)', () => {
+  it(PublisherCaptions.incorrectAmqp.ua, () => {
     try {
       PublisherValidate.validateOptions({ amqp: null });
     } catch (err) {
@@ -20,7 +21,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect amqp property(missing url)', () => {
+  it(PublisherCaptions.incorrectAmqpMissingUrl.ua, () => {
     try {
       PublisherValidate.validateOptions({ amqp: {} });
     } catch (err) {
@@ -29,7 +30,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect amqp property(need string)', () => {
+  it(PublisherCaptions.incorrectAmqpNoValidUrl.ua, () => {
     try {
       PublisherValidate.validateOptions({
         amqp: {
@@ -42,7 +43,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect exchange property(object)', () => {
+  it(PublisherCaptions.incorrectExchange.ua, () => {
     try {
       PublisherValidate.validateOptions({
         exchange: null,
@@ -53,7 +54,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect exchange property(missing nest properties)', () => {
+  it(PublisherCaptions.incorrectExchangeMissingNestProperties.ua, () => {
     try {
       PublisherValidate.validateOptions({
         exchange: {},
@@ -64,7 +65,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect exchange/name property(string)', () => {
+  it(PublisherCaptions.incorrectExchangeNoValidName.ua, () => {
     try {
       PublisherValidate.validateOptions({
         exchange: {
@@ -77,7 +78,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect exchange/mode property(string)', () => {
+  it(PublisherCaptions.incorrectExchangeNoValidMode.ua, () => {
     try {
       PublisherValidate.validateOptions({
         exchange: {
@@ -90,7 +91,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect exchange/options property(object)', () => {
+  it(PublisherCaptions.incorrectExchangeOptions.ua, () => {
     try {
       PublisherValidate.validateOptions({
         exchange: {
@@ -103,7 +104,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect exchange/options property(missing properties)', () => {
+  it(PublisherCaptions.incorrectExchangeOptionsMissingNestProperties.ua, () => {
     try {
       PublisherValidate.validateOptions({
         exchange: {
@@ -116,7 +117,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect exchange/options/durable property(boolean)', () => {
+  it(PublisherCaptions.incorrectExchangeOptionsNoValidDurable.ua, () => {
     try {
       PublisherValidate.validateOptions({
         exchange: {
@@ -131,7 +132,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect exchange/options/autoDelete property(boolean)', () => {
+  it(PublisherCaptions.incorrectExchangeOptionsNoValidAutoDelete.ua, () => {
     try {
       PublisherValidate.validateOptions({
         exchange: {
@@ -146,7 +147,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect message property(object)', () => {
+  it(PublisherCaptions.incorrectMessage.ua, () => {
     try {
       PublisherValidate.validateOptions({
         message: null,
@@ -157,7 +158,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect message property(missing nest properties)', () => {
+  it(PublisherCaptions.incorrectMessageMissingNestProperties.ua, () => {
     try {
       PublisherValidate.validateOptions({
         message: {},
@@ -168,7 +169,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect message/options property(object)', () => {
+  it(PublisherCaptions.incorrectMessageOptions.ua, () => {
     try {
       PublisherValidate.validateOptions({
         message: {
@@ -181,7 +182,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect message/options property(object)', () => {
+  it(PublisherCaptions.incorrectMessageOptionsMissingNestProperties.ua, () => {
     try {
       PublisherValidate.validateOptions({
         message: {
@@ -194,7 +195,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect message/options/persistent property(boolean)', () => {
+  it(PublisherCaptions.incorrectMessageOptionsNoValidPersistent.ua, () => {
     try {
       PublisherValidate.validateOptions({
         message: {

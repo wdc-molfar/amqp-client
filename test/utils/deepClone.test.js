@@ -1,7 +1,8 @@
 const deepClone = require('../../lib/utils/deepClone');
+const DeepCLoneCaptions = require('./captions');
 
-describe('deepClone - test function', () => {
-  it('should return correct result of concating 2 objects', () => {
+describe(DeepCLoneCaptions.deepCloneDescription.ua, () => {
+  it(DeepCLoneCaptions.correctTwoObjects.ua, () => {
     const defaultOptions = {
       exchange: {
         name: 'amqp_test_exchange',
@@ -27,5 +28,14 @@ describe('deepClone - test function', () => {
         url: 'amqp:localhost',
       },
     });
+  });
+
+  it(DeepCLoneCaptions.correctAnyType.ua, () => {
+    const source = {
+      dateOfBirth: new Date(Date.now()),
+      parents: ['mome', 'dad'],
+    };
+    const target = {};
+    expect(deepClone(target, source)).toEqual(source);
   });
 });
