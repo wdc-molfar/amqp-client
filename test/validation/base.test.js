@@ -1,7 +1,8 @@
 const Validate = require('../../lib/validation/base');
+const BaseCaptions = require('./captions/base');
 
-describe('Base validate', () => {
-  it('should return correct result from base check of options', () => {
+describe(BaseCaptions.baseDescription.ua, () => {
+  it(BaseCaptions.baseCheckOptions.ua, () => {
     expect(Validate.validateOptions({})).toBeTruthy();
   });
 });

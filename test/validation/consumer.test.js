@@ -1,8 +1,9 @@
 /* eslint-disable max-len */
 const ConsumerValidate = require('../../lib/validation/consumer');
+const ConsumerCaptions = require('./captions/consumer');
 
-describe('Consumer validate', () => {
-  it('should return correct error message with missing amqp, queue, message properties', () => {
+describe(ConsumerCaptions.consumerDescription.ua, () => {
+  it(ConsumerCaptions.missingAmqpQueueMessage.ua, () => {
     try {
       ConsumerValidate.validateOptions({});
     } catch (err) {
@@ -11,7 +12,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect amqp property(object)', () => {
+  it(ConsumerCaptions.incorrectAmqp.ua, () => {
     try {
       ConsumerValidate.validateOptions({ amqp: null });
     } catch (err) {
@@ -20,7 +21,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect amqp property(missing url)', () => {
+  it(ConsumerCaptions.incorrectAmqpMissingUrl.ua, () => {
     try {
       ConsumerValidate.validateOptions({ amqp: {} });
     } catch (err) {
@@ -29,7 +30,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect amqp property(need string)', () => {
+  it(ConsumerCaptions.incorrectAmqpNoValidUrl.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         amqp: {
@@ -42,7 +43,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue property(object)', () => {
+  it(ConsumerCaptions.incorrectQueue.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: null,
@@ -53,7 +54,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue property(missing nest properties)', () => {
+  it(ConsumerCaptions.incorrectQueueMissingNestProperties.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {},
@@ -64,7 +65,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/name property(string or null)', () => {
+  it(ConsumerCaptions.incorrectQueueNoValidName.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -77,7 +78,20 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/exchange property(missing properties)', () => {
+  it(ConsumerCaptions.incorrectQueueExchange.ua, () => {
+    try {
+      ConsumerValidate.validateOptions({
+        queue: {
+          exchange: null,
+        },
+      });
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toHaveProperty('message');
+    }
+  });
+
+  it(ConsumerCaptions.incorrectQueueExchangeMissingNestProperties.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -90,7 +104,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/exchange/name property(string)', () => {
+  it(ConsumerCaptions.incorrectQueueExchangeNoValidName.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -105,7 +119,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/exchange/options property(object)', () => {
+  it(ConsumerCaptions.incorrectQueueExchangeOptions.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -120,22 +134,25 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/exchange/options property(missing nest properties)', () => {
-    try {
-      ConsumerValidate.validateOptions({
-        queue: {
-          exchange: {
-            options: {},
+  it(
+    ConsumerCaptions.incorrectQueueExchangeOptionsMissingNestProperties.ua,
+    () => {
+      try {
+        ConsumerValidate.validateOptions({
+          queue: {
+            exchange: {
+              options: {},
+            },
           },
-        },
-      });
-    } catch (err) {
-      expect(err).toBeInstanceOf(Error);
-      expect(err).toHaveProperty('message');
-    }
-  });
+        });
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
+        expect(err).toHaveProperty('message');
+      }
+    },
+  );
 
-  it('should return correct error message with incorrect queue/exchange/options/durable property(boolean)', () => {
+  it(ConsumerCaptions.incorrectQueueExchangeOptionsNoValidDurable.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -152,7 +169,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/exchange/options/autoDelete property(boolean)', () => {
+  it(ConsumerCaptions.incorrectQueueExchangeOptionsNoValidAutoDelete.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -169,7 +186,20 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/options property(missing nest properties)', () => {
+  it(ConsumerCaptions.incorrectQueueOptions.ua, () => {
+    try {
+      ConsumerValidate.validateOptions({
+        queue: {
+          options: null,
+        },
+      });
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
+      expect(err).toHaveProperty('message');
+    }
+  });
+
+  it(ConsumerCaptions.incorrectQueueOptionsMissingNestProperties.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -182,7 +212,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/options/noAck property(boolean)', () => {
+  it(ConsumerCaptions.incorrectQueueOptionsNoValidNoAck.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -197,7 +227,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/options/exclusive property(boolean)', () => {
+  it(ConsumerCaptions.incorrectQueueOptionsNoValidExclusive.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -212,7 +242,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/options/durable property(boolean)', () => {
+  it(ConsumerCaptions.incorrectQueueOptionsNoValidDurable.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -227,7 +257,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/options/autoDelete property(boolean)', () => {
+  it(ConsumerCaptions.incorrectQueueOptionsNoValidAutoDelete.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -242,7 +272,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect queue/options/prefetch property(number)', () => {
+  it(ConsumerCaptions.incorrectQueueOptionsNoValidPrefetch.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         queue: {
@@ -257,7 +287,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect message property(object)', () => {
+  it(ConsumerCaptions.incorrectMessage.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         message: null,
@@ -268,7 +298,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect message property(missing nest properties)', () => {
+  it(ConsumerCaptions.incorrectMessageMissingNestProperties.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         message: {},
@@ -279,7 +309,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect message/options property(object)', () => {
+  it(ConsumerCaptions.incorrectMessageOptions.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         message: {
@@ -292,7 +322,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect message/options property(object)', () => {
+  it(ConsumerCaptions.incorrectMessageOptionsMissingNestProperties.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         message: {
@@ -305,7 +335,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect message/options/noAck property(boolean)', () => {
+  it(ConsumerCaptions.incorrectMessageOptionsNoValidNoAck.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         message: {
@@ -320,7 +350,7 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should return correct error message with incorrect message/options/exclusive property(boolean)', () => {
+  it(ConsumerCaptions.incorrectMessageOptionsNoValidExclusive.ua, () => {
     try {
       ConsumerValidate.validateOptions({
         message: {
@@ -335,32 +365,32 @@ describe('Consumer validate', () => {
     }
   });
 
-  it('should validate successfully', () => {
-    expect(
-      ConsumerValidate.validateOptions({
-        queue: {
-          name: 'test',
-          exchange: {
-            name: 'amqp_test_exchange',
-            mode: 'fanout',
-            options: {
-              durable: true,
-              autoDelete: false,
-            },
-          },
-          options: {
-            noAck: false,
-            exclusive: false,
-            durable: true,
-            autoDelete: false,
-            prefetch: 1,
-          },
-        },
-        // message: { options: { noAck: false, exclusive: false } },
-        amqp: {
-          url: 'amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg?heartbeat=60',
-        },
-      }),
-    ).not.toBeDefined();
-  });
+  // it(ConsumerCaptions.validateCorrect.ua, () => {
+  //   expect(
+  //     ConsumerValidate.validateOptions({
+  //       queue: {
+  //         name: 'test',
+  //         exchange: {
+  //           name: 'amqp_test_exchange',
+  //           mode: 'fanout',
+  //           options: {
+  //             durable: true,
+  //             autoDelete: false,
+  //           },
+  //         },
+  //         options: {
+  //           noAck: false,
+  //           exclusive: false,
+  //           durable: true,
+  //           autoDelete: false,
+  //           prefetch: 1,
+  //         },
+  //       },
+  //       // message: { options: { noAck: false, exclusive: false } },
+  //       amqp: {
+  //         url: 'amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg?heartbeat=60',
+  //       },
+  //     }),
+  //   ).not.toBeDefined();
+  // });
 });
