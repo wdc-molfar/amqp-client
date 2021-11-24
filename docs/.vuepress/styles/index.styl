@@ -1,4 +1,6 @@
     @import url(https://fonts.googleapis.com/icon?family=Material+Icons)
+    @import  "~prism-themes/themes/prism-coy-without-shadows.css"
+    
     .admonition.note,
     .admonition.hint,
     .admonition.danger,
@@ -176,4 +178,11 @@
         box-sizing: border-box;
         margin: 0;
         border-left: 0.25rem solid transparent;
-    }    
+    }   
+    
+    .theme-default-content pre code, .theme-default-content pre[class*="language-"] code {
+        color: #2c3e50 !important;
+        padding: 0;
+        background-color: transparent;
+        border-radius: 0;
+    } 

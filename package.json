@@ -5,10 +5,11 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "jest --coverage",
+    "remove-prism": "sed -i.bak -e \":a\" -e 'N' -e '$!ba' -e \"s/<style src=\\\"prismjs.*css\\\"><\\/style>/ /\" node_modules/@vuepress/theme-default/layouts/Layout.vue",
     "docs:api": "jsdoc2md  --template docs/.config/README.hbs --files lib/**/*.js  > docs/api/README.md",
     "docs:build": "npm run test && npm run docs:api",
-    "docs:dev": " npm run docs:build && npx vuepress dev docs",
-    "docs:prepublish": "npm run docs:build && npx vuepress build docs",
+    "docs:dev": " npm run docs:build && npm run remove-prism && npx vuepress dev docs",
+    "docs:prepublish": "npm run docs:build && npm run remove-prism && npx vuepress build docs",
     "docs:gh-pages": "gh-pages.sh"
   },
   "repository": {
@@ -37,6 +38,7 @@
     "mock-amqplib": "^1.4.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.4.1",
+    "prism-themes": "^1.9.0",
     "regenerator-runtime": "^0.13.9",
     "uuid": "^8.3.2",
     "vuepress": "^1.8.2",
