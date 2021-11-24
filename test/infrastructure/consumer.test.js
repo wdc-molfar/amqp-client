@@ -23,7 +23,7 @@ const options = {
       exclusive: false,
       durable: true,
       autoDelete: false,
-      prefetch: 1,
+      // prefetch: 1,
     },
   },
   message: { options: { noAck: false, exclusive: false } },
