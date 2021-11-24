@@ -22,8 +22,7 @@ const options = {
       noAck: false,
       exclusive: false,
       durable: true,
-      autoDelete: false,
-      // prefetch: 1,
+      autoDelete: false
     },
   },
   message: { options: { noAck: false, exclusive: false } },
@@ -49,6 +48,7 @@ describe(ConsumerCaptions.consumerDescription.ua, () => {
     assertExchange: jest.fn(),
     assertQueue: jest.fn().mockReturnValue({ queue }),
     bindQueue: jest.fn(),
+    prefetch: jest.fn(),
   };
   const mockCommonConnection = {
     close: jest.fn(),
@@ -164,6 +164,7 @@ describe(ConsumerCaptions.consumerDescription.ua, () => {
     expect(consumer.channel.consume).toHaveBeenCalledWith(
       queue,
       expect.anything(),
+      options.queue.options,
     );
     expect(consumer.middleware.execute).toHaveBeenCalledWith({
       content,
