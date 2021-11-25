@@ -9,7 +9,7 @@
 Для запуску виконуваного прикладу використовуються менеджер пакетів для мови програмування JavaScript – `npm (Node Package Manager)`, та команда
 
 ```shell
-   npm run example
+npm run example
 ```
 
 Дивись [документацію](https://wdc-molfar.github.io/amqp-client/)
