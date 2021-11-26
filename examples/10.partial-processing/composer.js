@@ -1,49 +1,58 @@
 /* eslint-disable no-unused-vars */
 
-const { 
-  AmqpManager, 
-  Middlewares, 
+const fs = require('fs');
+const path = require('path');
+const {
+  AmqpManager,
+  Middlewares,
   yaml2js,
   deepExtend,
-  getMetrics
+  getMetrics,
 } = require('../../lib');
 
-const fs = require("fs")
-const path = require("path")
-
-const composerListenerOptions = yaml2js( fs.readFileSync(path.resolve(__dirname, "./composer-listener.yaml")).toString() )
-const messageSchema = yaml2js( fs.readFileSync(path.resolve(__dirname, "./message.yaml")).toString() ) 
+const composerListenerOptions = yaml2js(
+  fs
+    .readFileSync(path.resolve(__dirname, './composer-listener.yaml'))
+    .toString(),
+);
+const messageSchema = yaml2js(
+  fs.readFileSync(path.resolve(__dirname, './message.yaml')).toString(),
+);
 
 module.exports = async () => {
-  
-  const messageBuffer = {}
+  const messageBuffer = {};
 
-  const listener = await AmqpManager.createConsumer(composerListenerOptions)
+  const listener = await AmqpManager.createConsumer(composerListenerOptions);
   await listener.use([
-
     Middlewares.Json.parse,
     Middlewares.Schema.validator(messageSchema),
     Middlewares.Error.Log,
     Middlewares.Error.BreakChain,
-    
+
     (err, msg, next) => {
-      if(messageBuffer[msg.content.id]){
-        messageBuffer[msg.content.id].meta = deepExtend(messageBuffer[msg.content.id].meta, msg.content.meta)
+      if (messageBuffer[msg.content.id]) {
+        messageBuffer[msg.content.id].meta = deepExtend(
+          messageBuffer[msg.content.id].meta,
+          msg.content.meta,
+        );
       } else {
-        messageBuffer[msg.content.id] = msg.content
+        messageBuffer[msg.content.id] = msg.content;
       }
 
-      if(messageBuffer[msg.content.id].meta.partial.ner && messageBuffer[msg.content.id].meta.partial.sa){
-        console.log("Composer complete partials", JSON.stringify(messageBuffer[msg.content.id], null, " "))
-        delete messageBuffer[msg.content.id]
+      if (
+        messageBuffer[msg.content.id].meta.partial.ner &&
+        messageBuffer[msg.content.id].meta.partial.sa
+      ) {
+        console.log(
+          'Composer complete partials',
+          JSON.stringify(messageBuffer[msg.content.id], null, ' '),
+        );
+        delete messageBuffer[msg.content.id];
       }
 
-      next()
-    }
+      next();
+    },
+  ]);
 
-
-  ])
-
-  return listener
-}
-
+  return listener;
+};
