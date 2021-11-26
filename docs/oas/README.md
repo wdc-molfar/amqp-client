@@ -8,42 +8,34 @@
   npm install --save wdc-molfar
 ```
 
-### 1. Базовий приклад
+### Базовий приклад
 
-##### Створюємо інстанси publisher і consumer за допомогою базових і кастомних параметрів для підключення та відправляємо 5 тестових повідомлень, які отримуємо через логування в consumer у Buffer форматі.
+Створюємо інстанси ```publisher``` і ```consumer``` за допомогою базових і кастомних параметрів для підключення та відправляємо 5 тестових повідомлень, які отримуємо через логування в ```consumer``` у ```Buffer``` форматі.
 
-@startuml
+<center>
 
-  queue  "test" <<Queue>> as Queue
-  queue  "amqp_test_exchange" <<Exchange>> as Exchange #aaeeaa 
+  @startuml
   
-  component  "consumer" <<Consumer>> as Consumer 
-  component  "producer" <<Producer>> as Producer #aaeeaa
-
-  Producer -> Exchange
-  Exchange -> Queue
-  Queue -> Consumer
-
-@enduml  
-
-
-```yaml
-
-amqp:
-    url: amqps://xoilebqg:Nx46t4t9cxQ2M0rF2rIyZPS_xbAhmJIG@hornet.rmq.cloudamqp.com/xoilebqg
-
-queue:
-    name: initiator
+    queue  "test" <<Queue>> as Queue
+    queue  "amqp_test_exchange" <<Exchange>> as Exchange #aaeeaa 
     
-    exchange:
-        name: initiator
-        mode: fanout
+    component  "consumer" <<Consumer>> as Consumer 
+    component  "producer" <<Producer>> as Producer #aaeeaa
+  
+    Producer -> Exchange
+    Exchange -> Queue
+    Queue -> Consumer
+  
+  @enduml  
 
-    options:
-        noAck: true
-        
+</center>
 
-```
+Створення екземплярів ```publisher``` і ```consumer``` здійснюється за допомогою  ```AmqpManager.createConsumer()``` та ```AmqpManager.createPublisher()```. Надсилання повідомлень здійснюється за допомогою ```publisher.send()```. Налаштування обробленя повідомлень 
+споживачем здійснюється за допомогою ```consumer.use()```, а ініціалізація прослуховування черги - за допомогою ```consumer.start()```.
+
+Крім того, можна використовувати ланцюжок викліків типу ```consumer.use().use().start()```
+
+***Код прикладу***
 
 ```js
 
@@ -105,7 +97,8 @@ const run = async () => {
 run();
 
 ```
-##### Результат
+
+***Результат***
 
 ```sh
 
@@ -118,30 +111,38 @@ Consume:  <Buffer 22 68 65 6c 6c 6f 22>
 Consume:  <Buffer 7b 22 64 61 74 61 22 3a 31 30 7d>  
 
 ```
-### 2. Ланцюжки оброблення повідомлень
-##### Окрім попереднього пункту про ініціалізацію publisher-consumer інстансів додається ланцюжок з колбеків, які виконуються послідовно і пропускають через себе 3 параметри: помилка, дані, колбек виклику наступної функції по черзі. 
 
-@startuml
+### Ланцюжки оброблення повідомлень
 
-component  "consumer" <<Consumer>> as Consumer 
-component  "producer" <<Producer>> as Producer #aaeeaa
+Бібліотека підтримує використання ланцюжків оброблення повідомлень ```middlewares```.
 
-queue  "test" <<Queue>> as Queue
-queue  "amqp_test_exchange" <<Exchange>> as Exchange #aaeeaa 
+<center>
 
-Producer -> Exchange
-Exchange -> Queue
-Queue -> Consumer
-Consumer -> Middleware
+  @startuml
+  
+    participant initiator 
+    
+    participant middleware1
+    participant middleware2
+    participant middleware3
+    
+    initiator -> middleware1
+    middleware1 -> middleware1: callback1(err, msg, next)
+    middleware1 -> middleware2
+    middleware2 -> middleware2: callback2(err, msg, next)
+    middleware2 -> middleware3
+    middleware3 -> middleware3: callback3(err, msg, next)
+  
+  @enduml
 
-skinparam componentStyle rectangle
+</center>
 
-package Middleware {
-    [JSON.parse]->[Log('Consume)]
-    [Log('Consume)]->[Log('Process)] 
-}
+Додавання обробника до ланцюжка оброблення повідомлень здійснюється за допомогою ```consumer.use()```(```publisher.use()```). 
+```consumer.use()```(```publisher.use()```) підтримує як додавання окремих обробників, так і масивів обробників. Обробники виконуються в порядку додавання до ланцюжка за допомогою  ```consumer.use()```(```publisher.use()```).
 
-@enduml
+Окрім попереднього пункту про ініціалізацію publisher-consumer інстансів додається ланцюжок з колбеків, які виконуються послідовно і пропускають через себе 3 параметри: помилка, дані, колбек виклику наступної функції по черзі. 
+
+***Код прикладу***
 
 ```js
 
@@ -212,6 +213,8 @@ run();
 
 ```
 
+***Результат***
+
 ```sh
 
 Consume:  { data: 'test message 1' }
@@ -231,9 +234,19 @@ Process: { data: 10 }
 
 ```
 
-### 3. Обробники повідомлень
+### Стандартні обробники повідомлень
 
-##### Апгрейд попереднього прикладу, додана здатність фільрувати повідомлення по критеріям: послідовний ланцюжок з middleware дає змогу через Consume Log вивести всі отримані повідомлення в consumerі, але до Process Log доходить лише повідомлення, яке відповідає критерію фільтрування, що закінчується на 5
+Бібліотека надає стандартні обробники повідомлень та генератори обробників:
+- <span style="color:red;"> ОПИСАТИ middlewares </span>
+
+Доступ до стандартних обробників здійснюється за допомогою 
+
+```Middleware.middleware or middleware group or middleware generator[.middleware or middleware generator call[(call params)]]```
+
+Апгрейд попереднього прикладу, додана здатність фільрувати повідомлення по критеріям: послідовний ланцюжок з ```middleware``` дає змогу через 
+```Consume Log``` вивести всі отримані повідомлення в consumerі але до ```Process Log``` доходить лише повідомлення, яке відповідає критерію фільтрування, що закінчується на 5
+
+***Код прикладу***
 
 ```js 
 
@@ -307,6 +320,8 @@ run();
 
 ```
 
+***Результат***
+
 ```sh
 
 Send: { data: 'test message 1' }
@@ -328,11 +343,17 @@ Consume:  { data: 10 }
 Process: { data: 10 }     
 
 ```
-## 4. Валідація повідомлень
 
-##### Додано middleware, яке валідує повідомлення, яке надходить у publisher.
+## Валідація повідомлень
 
-На стороні публікувальника:
+<span style="color:red"> ОПИСАТИ як генеруються та використовуються валідатори поідомлень</span>
+
+
+### Валідація повідомлень на стороні публікувальника:
+
+Додано middleware, яке валідує повідомлення, яке надходить у ```publisher```.
+
+***Код прикладу***
 
 ```js
 
@@ -427,6 +448,8 @@ run();
 
 ```
 
+***Результат***
+
 ```sh
 Send: { data: 'test message 1' }
 Send: { data: 'test message 2' }
@@ -458,8 +481,12 @@ Process: { data: 'test message 5' }
 
 ```
 
-На стороні споживача: 
-##### Додано middleware, яке валідує повідомлення, яке надходить з consumer
+
+### Валідація повідомлень на стороні споживача:
+
+Додано middleware, яке валідує повідомлення, яке надходить з ```consumer```
+
+***Код прикладу***
 
 ```js
 
@@ -552,6 +579,8 @@ run();
 
 ```
 
+***Результат***
+
 ```sh
 
 Send: { data: 'test message 1' }
@@ -585,9 +614,15 @@ On the path "/data": The consumed message data should be a string
     at async G:\bachelor\amqp-client\lib\infrastructure\consumer.js:78:13  
 
 ```
-## 5. Використання метрик
 
-##### Додано middleware, яке на на меті реєстрацію метрик для зборі статистики. В параметри Middlewares.Metric передається об'ект з полем metric для ініціалізації для відповдних потреб і колбек, з такими же аргументами, як і інші в middleware
+## Використання метрик
+
+<span style="color:red"> ОПИСАТИ що таке метрики, та навіщо їх використовувати. що ми
+використовуємо prom-client. Які метрики і як дозволяє збирати prom-client. Як згенерувати та використовувати обробники збору метрик у нас.</span>
+
+Додано middleware, яке на на меті реєстрацію метрик для зборі статистики. В параметри Middlewares.Metric передається об'ект з полем metric для ініціалізації для відповдних потреб і колбек, з такими же аргументами, як і інші в middleware
+
+***Код прикладу***
 
 ```js 
 
@@ -785,6 +820,8 @@ run();
 
 ```
 
+***Результат***
+
 ```sh
 
 Send: { data: 'test message 1' }
@@ -902,11 +939,41 @@ Metrics:
 
 ```
 
-## 6. Використання декількох споживачів на одну чергу
+## Прослуховування декількома споживачами однієї черги повідомлень
 
-##### Ініціалізація 1 publisher і 2 consumer, які слухають одну й ту саму чергу, і через параметр listenerId повідомлення розподіляються між ними
+У випадку, коли одні й ті ж свмі повідомлення повинні бути оброблені за допомогою різних алгоритмів, можна організувати 
+прослуховування однієї черги повідомлень декількома споживачами. В цьому випадку оброблення повідомлень цими споживачами буде здійснюватися паралельно.
 
-listener1.yaml
+<center>
+
+  @startuml
+  
+      component  "producer" <<Producer>> as Producer #aaeeaa
+      
+      queue  "name='broadcast'\nmode='fanout'" <<Exchange>> as broadcast #aaeeaa 
+      queue  "listen 1" <<Queue>> as l1
+      queue  "listen 2" <<Queue>> as l2
+      
+      component  "listener 1" <<Consumer>> as Listener1 
+      component  "listener 2" <<Consumer>> as Listener2 
+      
+      
+      
+      Producer -> broadcast
+      broadcast --> l1
+      broadcast --> l2
+      l1 --> Listener1
+      l2 --> Listener2
+  
+  @enduml
+
+</center>    
+
+Для цього необхідно <span style="color:red;"> як налаштувати обмінники і черги публікувальника та споживачів</span>
+
+Ініціалізація 1 publisher і 2 consumer, які слухають одну й ту саму чергу, і через параметр listenerId повідомлення розподіляються між ними
+
+***Файл ```listener1.yaml```. Налаштування першого прослуховувача***
 
 ```yaml
 
@@ -940,7 +1007,7 @@ message:
 
 ```
 
-listener2.yaml
+***Файл ```listener2.yaml```. Налаштування другого прослуховувача***
 
 ```yaml
 
@@ -975,7 +1042,7 @@ message:
 
 ```
 
-producer.yaml
+***Файл ```producer.yaml```. Налаштування публікувальника***
 
 ```yaml
 
@@ -1005,6 +1072,8 @@ message:
           
 
 ```
+
+***Код прикладу***
 
 ```js
 
@@ -1098,6 +1167,8 @@ run();
 
 ```
 
+***Результат***
+
 ```sh
 
 Produce {"id":0,"listener":1,"timeout":4061}
@@ -1121,11 +1192,40 @@ Listener 1 complete 0 : 4061
 
 ```
 
-## 7. Використання декількох споживачів(воркерів з ручним підтвердженням отримання повідомленням) на одну чергу
+## Організація черги завдань
 
-##### Ініціалізація одного publisher і 2 consumer, які слухають одну й ту саму чергу як і в попередньому прикладі. Але, різниця полягає в тому, що в yaml конфігу задано noAck: false. Це означає, що потрібно викликати .ack(). Якщо цього не зробити, слухач "зупиниться" на цьому повідомленні, як і реалізовано: за час 4 сек, другий воркер опрацює всі повідомлення в черзі, а перший воркер буде 'вісіти' на першому повідомленні
+При необхідності організації паралельного однотипного оброблення повідомлень декількома обробниками, можна організувати
+розбір завдань декількома споживачами з спільної черги завдань. На відміну від попереднього випадку, якщо вибірка повідомлення підтверджена одним з споживачів, інші споживачі вже не отримують це повідомлення. 
 
-scheduler.yaml
+<center>
+
+@startuml
+
+    component  "scheduler" <<Producer>> as Producer #aaeeaa
+    
+    queue  "name= 'test_task'\nmode='direct'" <<Exchange>> as broadcast #aaeeaa 
+    queue  "name='test_task'\nprefetch = 1\nnoAck= false" <<Queue>> as l1
+    
+    component  "worker 1" <<Consumer>> as Listener1 
+    component  "worker 2" <<Consumer>> as Listener2 
+    
+    
+    
+    Producer -> broadcast
+    broadcast --> l1
+    l1 --> Listener1
+    l1 --> Listener2
+
+@enduml  
+
+</center>  
+
+Для цього необхідно <span style="color:red;"> як налаштувати обмінники і черги публікувальника та споживачів</span>
+
+Ініціалізація одного publisher і 2 consumer, які слухають одну й ту саму чергу як і в попередньому прикладі. Але, різниця полягає в тому, що в yaml конфігу задано noAck: false. Це означає, що потрібно викликати .ack(). Якщо цього не зробити, слухач "зупиниться" на цьому повідомленні, як і реалізовано: за час 4 сек, другий воркер опрацює всі повідомлення в черзі, а перший воркер буде 'вісіти' на першому повідомленні
+
+***Файл ```scheduler.yaml```. Налаштування планувальника завдань***
+
 
 ```yaml
 
@@ -1151,7 +1251,7 @@ message:
 
 ```
 
-worker.yaml
+***Файл ```worker.yaml```. Налаштування працівника***
 
 ```yaml
 
@@ -1181,6 +1281,9 @@ message:
 
 
 ```
+
+***Код прикладу***
+
 
 ```js
 
@@ -1260,6 +1363,8 @@ run();
 
 ```
 
+***Результат***
+
 ```sh
 
 Worker 1 fetch task 0, 4073
@@ -1275,11 +1380,39 @@ Worker 2 process 5 : 1153
 
 ```
 
-## 8. Використання декількох публікувальників в одну чергу
+## Об'єднання потоків повідомлень
 
-##### Ініціалізація 2 однакових publisher і 1 consumer, який логує всі повідомлення
+У випадку необхідності злиття потоків повідомлень для оброблення в одному обробнику використовується спільний обмінник повідомлень для декількох публікувальників.
 
-listener.yaml
+<center>
+
+  @startuml
+
+    component  "publisher 1" <<Producer>> as Producer1 #aaeeaa
+    component  "publisher 2" <<Producer>> as Producer2 #aaeeaa
+    
+    queue  "name= 'concentrator'\nmode= 'fanout'" <<Exchange>> as broadcast #aaeeaa 
+    queue  "name='concentrator'" <<Queue>> as l
+    
+    component  "listener" <<Consumer>> as Listener 
+    
+    
+    
+    Producer1 --> broadcast
+    Producer2 --> broadcast
+    
+    broadcast --> l
+    l --> Listener
+
+  @enduml  
+
+</center>
+
+Для цього необхідно <span style="color:red;"> як налаштувати обмінники і черги публікувальника та споживачів</span>
+
+Ініціалізація 2 однакових publisher і 1 consumer, який логує всі повідомлення
+
+***Файл ```listener.yaml```. Налаштування прослуховувача***
 
 ```yaml
 
@@ -1313,8 +1446,7 @@ message:
 
 ```
 
-producer.yaml
-
+***Файл ```producer.yaml```. Налаштування публікувальника***
 
 ```yaml
 
@@ -1341,6 +1473,9 @@ message:
           type: number  
           
 ```
+
+***Код прикладу***
+
 
 ```js
 
@@ -1432,6 +1567,8 @@ run();
 
 ```
 
+***Результат***
+
 ```sh
 
 Producer 1 send  {"id":0,"producer":1,"timeout":4534}
@@ -1473,11 +1610,53 @@ Listener complete { id: 0, producer: 2, timeout: 4903 }
 
 ```
 
-## 9. Використання різних пар publisher-consumer, які ланцюгово використовуються.
+## Послідовний робочий процес оброблення повідомлень
 
-##### Initiator пара надсилає і отримує повідомлення, і під час останнього тригерить publisher з інших пари, який запускає вже свій процес з надсилання і отрмування повідомлення відповідно cunsumer. Queue та exchange для кожної пари різний.
+Організація послідовного робочого процесу оброблення повідомлень пов'язана з використанням в екземплярах мікросервісів
+публікувальників та споживачів повідомлень. Мікросервіси-джерела, наприклад ```initiator```, мають публікувальника;
+проміжні обробники (```worker1```) - як публікувальника, так і споживача, стоки повідомлень (```worker2```)- тільки споживача.
 
-initiator-listener.yaml
+<center>
+
+  @startuml
+
+    frame initiator {
+        component  "initiator\npublisher" <<Producer>> as inip #aaeeaa
+    }
+    
+    queue  "name= 'initiator'" <<Exchange>> as inie #aaeeaa 
+    queue  "name='initiator'" <<Queue>> as ineq
+    
+    frame worker1 {
+        component  "initiator\nconsumer" <<Consumer>> as inic 
+        component  "producer\npublisher " <<Producer>> as prp #aaeeaa
+    }
+    
+    frame worker2 {
+        component  "producer\nconsumer" <<Consumer>> as prc 
+    }
+    
+    queue  "name= 'producer'" <<Exchange>> as pre #aaeeaa 
+    queue  "name='producer'" <<Queue>> as prq
+    
+    inip --> inie
+    inie -> ineq
+    ineq --> inic
+    inic .l.> prp
+    prp --> pre
+    pre -> prq
+    
+    prq --> prc
+    
+  @enduml
+
+</center>  
+
+Для цього необхідно <span style="color:red;"> як налаштувати обмінники і черги публікувальника та споживачів</span>
+
+Initiator пара надсилає і отримує повідомлення, і під час останнього тригерить publisher з інших пари, який запускає вже свій процес з надсилання і отрмування повідомлення відповідно cunsumer. Queue та exchange для кожної пари різний.
+
+***Файл ```initiator-listener.yaml```***
 
 ```yaml
 
@@ -1497,7 +1676,7 @@ queue:
 
 ```
 
-initiator-listener.yaml
+***Файл ```initiator-listener.yaml```***
 
 ```yaml
 
@@ -1510,7 +1689,7 @@ exchange:
 
 ```
 
-producer-listener.yaml
+***Файл ```producer-listener.yaml```***
 
 ```yaml
 
@@ -1529,7 +1708,7 @@ queue:
 
 ```
 
-producer.yaml
+***Файл ```producer.yaml```***
 
 ```yaml
 
@@ -1541,6 +1720,8 @@ exchange:
     mode: fanout
 
 ```
+
+***Код прикладу***
 
 ```js
 
@@ -1661,6 +1842,8 @@ run();
 
 ```
 
+***Результат***
+
 ```sh
 
 Initiator send  {"id":0,"meta":{},"timeout":4133}
@@ -1720,55 +1903,64 @@ Producer listener consume {
 }
 
 ```
-## 10. Часткове оброблення та композиция результатів
 
-@startuml
+## Часткове оброблення повідомлень та композиция результатів
 
-    frame  initiator {
-      component  "initiator" <<Producer>> as Initiator #aaeeaa
-    }
+Використовуючи схему взаємодії для прослуховування декількома споживачами однієї черги повідомлень та 
+схему взаємодії для об'єднання потоків повідомлень, можна організувати паралельне часткове оброблення
+повідомлень з наступною композицією їх результатів. 
+
+<center>
+
+  @startuml
   
-    queue  "messages" <<Exchange>> as Messages #aaeeaa 
-    queue  "messages_ner" <<Queue>> as Messages_ner
-    queue  "messages_sa" <<Queue>> as Messages_sa
+      frame  initiator {
+        component  "initiator" <<Producer>> as Initiator #aaeeaa
+      }
     
-    Initiator -> Messages
-    Messages --> Messages_sa
-    Messages --> Messages_ner
+      queue  "messages" <<Exchange>> as Messages #aaeeaa 
+      queue  "messages_ner" <<Queue>> as Messages_ner
+      queue  "messages_sa" <<Queue>> as Messages_sa
+      
+      Initiator -> Messages
+      Messages --> Messages_sa
+      Messages --> Messages_ner
+  
+      frame partial_sa {
+        component  "listener" <<Consumer>> as Listener_sa
+        component  "producer" <<Producer>> as Producer_sa #aaeeaa
+        Listener_sa ..> Producer_sa          
+      }
+      
+      frame partial_ner {
+        component  "listener" <<Consumer>> as Listener_ner
+        component  "producer" <<Producer>> as Producer_ner #aaeeaa
+        Listener_ner ..> Producer_ner          
+      }
+      
+      Messages_ner --> Listener_ner
+      Messages_sa --> Listener_sa
+      
+      queue  "composer_input" <<Exchange>> as Composer_input #aaeeaa 
+      
+      Producer_ner --> Composer_input
+      Producer_sa --> Composer_input
+      
+      queue "composer_input" <<Queue>> as CIQ
+      
+      Composer_input -> CIQ
+      
+      frame composer {
+          component  "listener" <<Consumer>> as CL
+      }
+      
+      CIQ --> CL
+  
+  @enduml  
 
-    frame partial_sa {
-      component  "listener" <<Consumer>> as Listener_sa
-      component  "producer" <<Producer>> as Producer_sa #aaeeaa
-      Listener_sa ..> Producer_sa          
-    }
-    
-    frame partial_ner {
-      component  "listener" <<Consumer>> as Listener_ner
-      component  "producer" <<Producer>> as Producer_ner #aaeeaa
-      Listener_ner ..> Producer_ner          
-    }
-    
-    Messages_ner --> Listener_ner
-    Messages_sa --> Listener_sa
-    
-    queue  "composer_input" <<Exchange>> as Composer_input #aaeeaa 
-    
-    Producer_ner --> Composer_input
-    Producer_sa --> Composer_input
-    
-    queue "composer_input" <<Queue>> as CIQ
-    
-    Composer_input -> CIQ
-    
-    frame composer {
-        component  "listener" <<Consumer>> as CL
-    }
-    
-    CIQ --> CL
+</center>
 
-@enduml  
-
-initiator.yaml
+***Файл ```initiator.yaml```***
 
 ```yaml
 
@@ -1781,7 +1973,7 @@ exchange:
 
 ```
 
-partial-listener.yaml
+***Файл ```partial-listener.yaml```***
 
 ```yaml
 
@@ -1800,7 +1992,7 @@ queue:
     
 ```
 
-partial-producer.yaml
+***Файл ```partial-producer.yaml```***
 
 ```yaml
 
@@ -1813,7 +2005,7 @@ exchange:
 
 ```
 
-partial.js
+***Файл ```partial.js```***
 
 ```js
 
@@ -1878,7 +2070,7 @@ module.exports = async (id) => {
 
 ```
 
-initiator.js
+***Файл ```initiator.js```***
 
 ```js
 
@@ -1914,7 +2106,7 @@ module.exports = async () => {
 
 ```
 
-composer.js
+***Файл ```composer.js```***
 
 ```js
 
@@ -1979,7 +2171,7 @@ module.exports = async () => {
 
 ```
 
-index.js
+***Файл ```index.js```***
 
 ```js
 
@@ -2024,6 +2216,8 @@ const run = async () => {
 run();
 
 ```
+
+***Результат***
 
 ```sh
 
