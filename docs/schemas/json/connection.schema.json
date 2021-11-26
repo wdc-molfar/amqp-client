@@ -1,1 +1,0 @@
-{"type":"object","required":["url"],"properties":{"url":{"type":"string"}},"errorMessage":{"type":"Connection options should be an object.","required":"Connection url is required.","properties":{"url":"Connection url should be a valid RabbitMQ connection url."}}}
