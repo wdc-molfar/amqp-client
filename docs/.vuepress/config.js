@@ -50,11 +50,6 @@ module.exports = {
     },
 
     {
-      title: 'Схеми налаштувань',
-      path:"/schemas/"
-    },
-
-    {
       title: 'Програма випобувань',
       path:"/test/"
     }
