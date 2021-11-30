@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest --coverage",
     "remove-prism": "sed -i.bak -e \":a\" -e 'N' -e '$!ba' -e \"s/<style src=\\\"prismjs.*css\\\"><\\/style>/ /\" node_modules/@vuepress/theme-default/layouts/Layout.vue",
-    "docs:api": "jsdoc2md  --template docs/.config/README.hbs --files lib/**/*.js  > docs/api/README.md",
+    "docs:api": "jsdoc2md  --template docs/.config/README.hbs --files ./lib/**/*.js  > ./docs/api/README.md",
     "docs:build": "npm run test && npm run docs:api",
     "docs:dev": " npm run docs:build && npm run remove-prism && npx vuepress dev docs",
     "docs:prepublish": "npm run docs:build && npm run remove-prism && npx vuepress build docs",
