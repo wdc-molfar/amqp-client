@@ -622,7 +622,7 @@ On the path "/data": The consumed message data should be a string
 
 Prometheus це модель даних для опису та запису показників(metrics) у часі.
 prom-client - rлієнт prometheus для Node.js, який підтримує гістограми, підсумки, вимірювальні прилади та лічильники.
-Метрика — це об’єкт даних, який дозволяє записувати дані про продуктивність своєї системи. Модель даних Prometheus дозволяє записувати: 
+Метрика — це об’єкт даних, який дозволяє записувати дані про продуктивність своєї системи. Модель даних Prometheus дозволяє записувати: oas 
 - Що щось сталося
 - Скільки разів це було
 - Коли це сталося
@@ -633,6 +633,114 @@ Middlewares.Metric приймає об'єкт з 2 полями:
 - callback - функція типу middleware, яка дозволяє робити акшини відповідно до функціоналу створеної метрики(наприклад для Counter це збільшення лічильника)
   
 Додано middleware, яке на на меті реєстрацію метрик для збору статистики. 
+
+***Приклади використання двох видів метрик, взятих з репозиторію prom-client***
+
+#### Counter
+
+```js
+const { Counter, register } = require('prom-client');
+
+async function main() {
+	const c = new Counter({
+		name: 'test_counter',
+		help: 'Example of a counter',
+		labelNames: ['code'],
+	});
+
+	c.inc({ code: 200 });
+	console.log(await register.metrics());
+	/*
+	# HELP test_counter Example of a counter
+	# TYPE test_counter counter
+	test_counter{code="200"} 1
+	*/
+
+	c.inc({ code: 200 });
+	console.log(await register.metrics());
+	/*
+	# HELP test_counter Example of a counter
+	# TYPE test_counter counter
+	test_counter{code="200"} 2
+	*/
+
+	c.inc();
+	console.log(await register.metrics());
+	/*
+	# HELP test_counter Example of a counter
+	# TYPE test_counter counter
+	test_counter{code="200"} 2
+	test_counter 1
+	*/
+
+	c.reset();
+	console.log(await register.metrics());
+	/*
+	# HELP test_counter Example of a counter
+	# TYPE test_counter counter
+	*/
+
+	c.inc(15);
+	console.log(await register.metrics());
+	/*
+	# HELP test_counter Example of a counter
+	# TYPE test_counter counter
+	test_counter 15
+	*/
+
+	c.inc({ code: 200 }, 12);
+	console.log(await register.metrics());
+	/*
+	# HELP test_counter Example of a counter
+	# TYPE test_counter counter
+	test_counter 15
+	test_counter{code="200"} 12
+	*/
+
+	c.labels('200').inc(12);
+	console.log(await register.metrics());
+	/*
+	# HELP test_counter Example of a counter
+	# TYPE test_counter counter
+	test_counter 15
+	test_counter{code="200"} 24
+	*/
+}
+
+main();
+```
+
+#### Histogram
+
+```js
+const { register, Histogram } = require('prom-client');
+
+const h = new Histogram({
+	name: 'test_histogram',
+	help: 'Example of a histogram',
+	labelNames: ['code', 'color'],
+});
+
+h.labels('200', 'blue').observe(0.4);
+h.labels('300', 'red').observe(0.6);
+h.labels('300', 'blue').observe(0.4);
+h.labels('200', 'red').observe(0.6);
+
+register.metrics().then(str => console.log(str));
+/*
+Output from metrics():
+# HELP test_histogram Example of a histogram
+# TYPE test_histogram histogram
+test_histogram_sum{code="200",color="blue"} 0.4
+test_histogram_count{code="200",color="blue"} 1
+test_histogram_sum{code="300",color="red"} 0.6
+test_histogram_count{code="300",color="red"} 1
+test_histogram_sum{code="300",color="blue"} 0.4
+test_histogram_count{code="300",color="blue"} 1
+test_histogram_sum{code="200",color="red"} 0.6
+test_histogram_count{code="200",color="red"} 1
+*/
+```
 
 ***Код прикладу***
 
