@@ -28,6 +28,43 @@
 <dt><a href="#exp_module_ AmqpManager--AmqpManager.getInstance">AmqpManager.getInstance()</a> ⇒ <code>Object</code> ⏏</dt>
 <dd><p>Створює посилання на amqp-manager якщо його немає</p>
 </dd>
+<dt><a href="#BreakChain">BreakChain(err, msg, next)</a></dt>
+<dd><p>middleware, але &quot;розбиває&quot; ланцюжок виконання колбеків, якщо є помилка</p>
+</dd>
+<dt><a href="#Log">Log(err, msg, next)</a></dt>
+<dd><p>middleware, але логує помилку, якщо вона є</p>
+</dd>
+<dt><a href="#Filter">Filter(predicate)</a> ⇒ <code><a href="#filterMiddleware">filterMiddleware</a></code></dt>
+<dd><p>функція-фабрика, яка отримує обробник даних, повертає функцію типу
+middleware</p>
+</dd>
+<dt><a href="#filterMiddleware">filterMiddleware(err, msg, next)</a></dt>
+<dd></dd>
+<dt><a href="#stringify">stringify(err, msg, next)</a></dt>
+<dd><p>middleware, який конвертує Buffer в string</p>
+</dd>
+<dt><a href="#parse">parse(err, msg, next)</a></dt>
+<dd><p>middleware, який конвертує string в object</p>
+</dd>
+<dt><a href="#Metric">Metric(options)</a> ⇒ <code>metricMiddleware</code></dt>
+<dd><p>функція-фабрика, яка отримує об&#39;єкт з метрикою та її ініціалізацією
+та повертає функцію типу middleware</p>
+</dd>
+<dt><a href="#metricMiddleware ініціалізує та виконує операцію з метрикою,
+передаючи параметри * в метод .callback_new">metricMiddleware ініціалізує та виконує операцію з метрикою,
+передаючи параметри * в метод .callback()(err, msg, next)</a></dt>
+<dd></dd>
+<dt><a href="#validator">validator(options)</a> ⇒ <code>validatorMiddleware</code></dt>
+<dd><p>функція-фабрика, яка валідаційну schema
+проводить ініціалізацію validationFunction
+та повертає функцію типу middleware</p>
+</dd>
+<dt><a href="#validatorMiddleware перевіряє дані за допомогою валідаційної функції
+та повертає або помилку або продовжує ланцюжок екшинів в залежності від
+наявності чи відсутності помилок">validatorMiddleware перевіряє дані за допомогою валідаційної функції
+та повертає або помилку або продовжує ланцюжок екшинів в залежності від
+наявності чи відсутності помилок(err, msg, next)</a></dt>
+<dd></dd>
 </dl>
 
 <a name="module_AmqpManager"></a>
@@ -508,4 +545,138 @@ PublisherValidate
 | Param |
 | --- |
 | options | 
+
+<a name="BreakChain"></a>
+
+## BreakChain(err, msg, next)
+middleware, але "розбиває" ланцюжок виконання колбеків, якщо є помилка
+
+**Kind**: global function  
+
+| Param | Description |
+| --- | --- |
+| err | помилка, що виникла на одній з минулих ітерації. |
+| msg | об'єкт з даними. |
+| next | функція-колбек наступної проміжної обробки. |
+
+<a name="Log"></a>
+
+## Log(err, msg, next)
+middleware, але логує помилку, якщо вона є
+
+**Kind**: global function  
+
+| Param | Description |
+| --- | --- |
+| err | помилка, що виникла на одній з минулих ітерації. |
+| msg | об'єкт з даними. |
+| next | функція-колбек наступної проміжної обробки. |
+
+<a name="Filter"></a>
+
+## Filter(predicate) ⇒ [<code>filterMiddleware</code>](#filterMiddleware)
+функція-фабрика, яка отримує обробник даних, повертає функцію типу
+middleware
+
+**Kind**: global function  
+**Returns**: [<code>filterMiddleware</code>](#filterMiddleware) - middleware, де в залежності
+від виконання обробника виконується подальша логіка  
+
+| Param | Description |
+| --- | --- |
+| predicate | функція-обробник фільтрації. |
+
+<a name="filterMiddleware"></a>
+
+## filterMiddleware(err, msg, next)
+**Kind**: global function  
+
+| Param | Description |
+| --- | --- |
+| err | помилка, що виникла на одній з минулих ітерації. |
+| msg | об'єкт з даними. |
+| next | функція-колбек наступної проміжної обробки. |
+
+<a name="stringify"></a>
+
+## stringify(err, msg, next)
+middleware, який конвертує Buffer в string
+
+**Kind**: global function  
+
+| Param | Description |
+| --- | --- |
+| err | помилка, що виникла на одній з минулих ітерації. |
+| msg | об'єкт з даними. |
+| next | функція-колбек наступної проміжної обробки. |
+
+<a name="parse"></a>
+
+## parse(err, msg, next)
+middleware, який конвертує string в object
+
+**Kind**: global function  
+
+| Param | Description |
+| --- | --- |
+| err | помилка, що виникла на одній з минулих ітерації. |
+| msg | об'єкт з даними. |
+| next | функція-колбек наступної проміжної обробки. |
+
+<a name="Metric"></a>
+
+## Metric(options) ⇒ <code>metricMiddleware</code>
+функція-фабрика, яка отримує об'єкт з метрикою та її ініціалізацією
+та повертає функцію типу middleware
+
+**Kind**: global function  
+**Returns**: <code>metricMiddleware</code> - middleware, де в залежності
+від виконання обробника виконується подальша логіка  
+
+| Param | Description |
+| --- | --- |
+| options | конфіг з метрикою та ініціалізаційним колбеком. |
+
+<a name="metricMiddleware ініціалізує та виконує операцію з метрикою,
+передаючи параметри * в метод .callback_new"></a>
+
+## metricMiddleware ініціалізує та виконує операцію з метрикою,
+передаючи параметри \* в метод .callback()(err, msg, next)
+**Kind**: global function  
+
+| Param | Description |
+| --- | --- |
+| err | помилка, що виникла на одній з минулих ітерації. |
+| msg | об'єкт з даними. |
+| next | функція-колбек наступної проміжної обробки. |
+
+<a name="validator"></a>
+
+## validator(options) ⇒ <code>validatorMiddleware</code>
+функція-фабрика, яка валідаційну schema
+проводить ініціалізацію validationFunction
+та повертає функцію типу middleware
+
+**Kind**: global function  
+**Returns**: <code>validatorMiddleware</code> - middleware, де в залежності
+від виконання обробника виконується подальша логіка  
+
+| Param | Description |
+| --- | --- |
+| options | конфіг для валідації. |
+
+<a name="validatorMiddleware перевіряє дані за допомогою валідаційної функції
+та повертає або помилку або продовжує ланцюжок екшинів в залежності від
+наявності чи відсутності помилок"></a>
+
+## validatorMiddleware перевіряє дані за допомогою валідаційної функції
+та повертає або помилку або продовжує ланцюжок екшинів в залежності від
+наявності чи відсутності помилок(err, msg, next)
+**Kind**: global function  
+
+| Param | Description |
+| --- | --- |
+| err | помилка, що виникла на одній з минулих ітерації. |
+| msg | об'єкт з даними. |
+| next | функція-колбек наступної проміжної обробки. |
 
