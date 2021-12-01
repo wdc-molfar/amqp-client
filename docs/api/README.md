@@ -50,20 +50,14 @@ middleware</p>
 <dd><p>функція-фабрика, яка отримує об&#39;єкт з метрикою та її ініціалізацією
 та повертає функцію типу middleware</p>
 </dd>
-<dt><a href="#metricMiddleware ініціалізує та виконує операцію з метрикою,
-передаючи параметри * в метод .callback_new">metricMiddleware ініціалізує та виконує операцію з метрикою,
-передаючи параметри * в метод .callback()(err, msg, next)</a></dt>
+<dt><a href="#metricMiddleware ініціалізує та виконує операцію з метрикою,передаючи параметри * в метод .callback_new">metricMiddleware ініціалізує та виконує операцію з метрикою,передаючи параметри * в метод .callback()(err, msg, next)</a></dt>
 <dd></dd>
 <dt><a href="#validator">validator(options)</a> ⇒ <code>validatorMiddleware</code></dt>
 <dd><p>функція-фабрика, яка валідаційну schema
 проводить ініціалізацію validationFunction
 та повертає функцію типу middleware</p>
 </dd>
-<dt><a href="#validatorMiddleware перевіряє дані за допомогою валідаційної функції
-та повертає або помилку або продовжує ланцюжок екшинів в залежності від
-наявності чи відсутності помилок">validatorMiddleware перевіряє дані за допомогою валідаційної функції
-та повертає або помилку або продовжує ланцюжок екшинів в залежності від
-наявності чи відсутності помилок(err, msg, next)</a></dt>
+<dt><a href="#validatorMiddleware перевіряє дані за допомогою валідаційної функціїта повертає або помилку або продовжує ланцюжок екшинів в залежності віднаявності чи відсутності помилок">validatorMiddleware перевіряє дані за допомогою валідаційної функціїта повертає або помилку або продовжує ланцюжок екшинів в залежності віднаявності чи відсутності помилок(err, msg, next)</a></dt>
 <dd></dd>
 </dl>
 
@@ -575,12 +569,10 @@ middleware, але логує помилку, якщо вона є
 <a name="Filter"></a>
 
 ## Filter(predicate) ⇒ [<code>filterMiddleware</code>](#filterMiddleware)
-функція-фабрика, яка отримує обробник даних, повертає функцію типу
-middleware
+функція-фабрика, яка отримує обробник даних, повертає функцію типуmiddleware
 
 **Kind**: global function  
-**Returns**: [<code>filterMiddleware</code>](#filterMiddleware) - middleware, де в залежності
-від виконання обробника виконується подальша логіка  
+**Returns**: [<code>filterMiddleware</code>](#filterMiddleware) - middleware, де в залежностівід виконання обробника виконується подальша логіка  
 
 | Param | Description |
 | --- | --- |
@@ -626,22 +618,18 @@ middleware, який конвертує string в object
 <a name="Metric"></a>
 
 ## Metric(options) ⇒ <code>metricMiddleware</code>
-функція-фабрика, яка отримує об'єкт з метрикою та її ініціалізацією
-та повертає функцію типу middleware
+функція-фабрика, яка отримує об'єкт з метрикою та її ініціалізацієюта повертає функцію типу middleware
 
 **Kind**: global function  
-**Returns**: <code>metricMiddleware</code> - middleware, де в залежності
-від виконання обробника виконується подальша логіка  
+**Returns**: <code>metricMiddleware</code> - middleware, де в залежностівід виконання обробника виконується подальша логіка  
 
 | Param | Description |
 | --- | --- |
 | options | конфіг з метрикою та ініціалізаційним колбеком. |
 
-<a name="metricMiddleware ініціалізує та виконує операцію з метрикою,
-передаючи параметри * в метод .callback_new"></a>
+<a name="metricMiddleware ініціалізує та виконує операцію з метрикою,передаючи параметри * в метод .callback_new"></a>
 
-## metricMiddleware ініціалізує та виконує операцію з метрикою,
-передаючи параметри \* в метод .callback()(err, msg, next)
+## metricMiddleware ініціалізує та виконує операцію з метрикою,передаючи параметри \* в метод .callback()(err, msg, next)
 **Kind**: global function  
 
 | Param | Description |
@@ -653,25 +641,18 @@ middleware, який конвертує string в object
 <a name="validator"></a>
 
 ## validator(options) ⇒ <code>validatorMiddleware</code>
-функція-фабрика, яка валідаційну schema
-проводить ініціалізацію validationFunction
-та повертає функцію типу middleware
+функція-фабрика, яка валідаційну schemaпроводить ініціалізацію validationFunctionта повертає функцію типу middleware
 
 **Kind**: global function  
-**Returns**: <code>validatorMiddleware</code> - middleware, де в залежності
-від виконання обробника виконується подальша логіка  
+**Returns**: <code>validatorMiddleware</code> - middleware, де в залежностівід виконання обробника виконується подальша логіка  
 
 | Param | Description |
 | --- | --- |
 | options | конфіг для валідації. |
 
-<a name="validatorMiddleware перевіряє дані за допомогою валідаційної функції
-та повертає або помилку або продовжує ланцюжок екшинів в залежності від
-наявності чи відсутності помилок"></a>
+<a name="validatorMiddleware перевіряє дані за допомогою валідаційної функціїта повертає або помилку або продовжує ланцюжок екшинів в залежності віднаявності чи відсутності помилок"></a>
 
-## validatorMiddleware перевіряє дані за допомогою валідаційної функції
-та повертає або помилку або продовжує ланцюжок екшинів в залежності від
-наявності чи відсутності помилок(err, msg, next)
+## validatorMiddleware перевіряє дані за допомогою валідаційної функціїта повертає або помилку або продовжує ланцюжок екшинів в залежності віднаявності чи відсутності помилок(err, msg, next)
 **Kind**: global function  
 
 | Param | Description |
